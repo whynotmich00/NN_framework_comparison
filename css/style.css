@@ -247,3 +247,22 @@ footer {
     border-bottom-left-radius: 3px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* Stile per le immagini nelle card */
+.card-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+    object-fit: contain;
+}
+
+/* Aggiorniamo il card-header per gestire sia il logo che il titolo */
+.card-header {
+    height: 180px; /* aumentato per ospitare l'immagine */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
