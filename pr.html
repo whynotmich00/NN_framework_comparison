@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduzione a JAX: vmap, jit, grad</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        h1, h2 {
+            color: #0056b3; /* Blu JAX-like */
+        }
+        h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #eef;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #282c34; /* Colore scuro per blocchi codice */
+            color: #abb2bf; /* Colore testo chiaro per blocchi codice */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto; /* Permette lo scroll orizzontale se il codice è lungo */
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .explanation {
+            margin-bottom: 15px;
+        }
+        .output {
+            font-style: italic;
+            color: #555;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 3px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Introduzione a JAX per Principianti</h1>
+
+        <p class="explanation">
+            JAX è una libreria per il calcolo numerico ad alte prestazioni, molto simile a NumPy, ma con alcune "superpoteri" aggiuntivi. Vediamo tre di questi superpoteri: <code>jax.vmap</code>, <code>jax.jit</code>, e <code>jax.grad</code>.
+        </p>
+        <p class="explanation">
+            Per usare JAX, di solito lo importiamo insieme alla sua versione di NumPy:
+        </p>
+        <pre><code>import jax
+import jax.numpy as jnp # jnp è la convenzione comune</code></pre>
+
+        <!-- Sezione jax.vmap -->
+        <h2>1. <code>jax.vmap</code>: Vettorizzazione Automatica</h2>
+        <p class="explanation">
+            Immagina di avere una funzione che funziona su un singolo dato (es. un numero o un vettore) e vuoi applicarla a tanti dati contemporaneamente (un "batch" o un "lotto" di dati). Normalmente dovresti scrivere un ciclo (<code>for</code> loop).
+            <code>jax.vmap</code> ("vectorizing map") trasforma automaticamente la tua funzione semplice in una che gestisce batch di dati, in modo molto efficiente.
+        </p>
+
+        <p class="explanation"><strong>Esempio:</strong> Abbiamo una funzione che raddoppia un numero.</p>
+        <pre><code># Funzione che opera su un singolo numero
+def double_number(x):
+  print(f"Eseguo double_number su {x}") # Nota: le print non funzionano bene con JIT/vmap! Le usiamo qui solo per illustrare
+  return x * 2
+
+# Vogliamo applicarla a più numeri: [1, 2, 3]
+
+# Modo LENTO (con un ciclo for Python):
+numbers = jnp.array([1, 2, 3])
+results_loop = []
+for num in numbers:
+  results_loop.append(double_number(num))
+results_loop = jnp.array(results_loop)
+
+print(f"Risultato con ciclo for: {results_loop}")</code></pre>
+        <p class="output">Output atteso (la print dentro la funzione verrebbe eseguita 3 volte):<br>
+           Eseguo double_number su 1<br>
+           Eseguo double_number su 2<br>
+           Eseguo double_number su 3<br>
+           Risultato con ciclo for: [2 4 6]
+        </p>
+
+        <p class="explanation">
+            Ora usiamo <code>jax.vmap</code>. Diciamo a <code>vmap</code> di "mappare" la funzione sull'asse 0 del nostro array di input (<code>in_axes=0</code>).
+        </p>
+        <pre><code># Funzione originale (senza print ora, per chiarezza con vmap)
+def double_number_clean(x):
+  return x * 2
+
+# Creiamo la versione "vettorizzata" della funzione
+vectorized_double = jax.vmap(double_number_clean, in_axes=0)
+
+# Applichiamola direttamente all'array di numeri
+numbers = jnp.array([1, 2, 3])
+results_vmap = vectorized_double(numbers)
+
+print(f"Risultato con vmap: {results_vmap}")</code></pre>
+        <p class="output">Output atteso:<br>
+           Risultato con vmap: [2 4 6]
+        </p>
+        <p class="explanation">
+            Nota: Con <code>vmap</code>, la funzione originale (<code>double_number_clean</code>) viene "vista" da JAX come se fosse eseguita una sola volta su tutto il batch, rendendo l'operazione molto più veloce su hardware come GPU/TPU rispetto al ciclo Python. Non vedrai le print multiple perché JAX ottimizza l'intera operazione.
+        </p>
+
+        <!-- Sezione jax.jit -->
+        <h2>2. <code>jax.jit</code>: Compilazione Just-In-Time</h2>
+        <p class="explanation">
+            <code>jax.jit</code> ("just-in-time compilation") prende una funzione Python/JAX e la compila in codice macchina ottimizzato (usando XLA). Questo può rendere le tue funzioni molto, molto più veloci, specialmente se contengono molte operazioni JAX o vengono eseguite ripetutamente.
+        </p>
+        <p class="explanation">
+            La prima volta che chiami una funzione "jittata", JAX la "traccia" per capire cosa fa e la compila. Questa prima esecuzione potrebbe essere un po' lenta. Le esecuzioni successive useranno il codice compilato e saranno velocissime.
+        </p>
+
+        <p class="explanation"><strong>Esempio:</strong> Una funzione che esegue qualche calcolo.</p>
+        <pre><code># Una funzione un po' più complessa
+def compute_something(x, w, b):
+  # Simuliamo qualche calcolo, es. una semplice rete neurale a 1 strato
+  output = jnp.dot(x, w) + b
+  return jnp.mean(output) # Calcoliamo la media
+
+# Dati di esempio
+key = jax.random.PRNGKey(0) # Chiave per numeri casuali in JAX
+x_data = jax.random.normal(key, (100, 50)) # Matrice 100x50
+w_data = jax.random.normal(key, (50, 10))  # Matrice 50x10
+b_data = jax.random.normal(key, (10,))    # Vettore di bias
+
+# 1. Esecuzione normale (senza JIT)
+result_normal = compute_something(x_data, w_data, b_data)
+print(f"Risultato normale: {result_normal}")
+
+# 2. Creiamo la versione compilata con JIT
+jit_compute = jax.jit(compute_something)
+
+# 3. Esecuzione con JIT
+# La prima esecuzione compila la funzione (potrebbe essere lenta)
+result_jit_first = jit_compute(x_data, w_data, b_data)
+print(f"Risultato JIT (prima esecuzione): {result_jit_first}")
+
+# Le esecuzioni successive sono molto veloci
+result_jit_second = jit_compute(x_data, w_data, b_data)
+print(f"Risultato JIT (seconda esecuzione): {result_jit_second}")
+
+# In un vero script/notebook, misureresti il tempo di esecuzione
+# per vedere la differenza di velocità tra compute_something e jit_compute
+# (dopo la prima chiamata a jit_compute).</code></pre>
+        <p class="output">Output atteso (i valori numerici saranno diversi a causa della casualità):<br>
+           Risultato normale: [un numero]<br>
+           Risultato JIT (prima esecuzione): [lo stesso numero]<br>
+           Risultato JIT (seconda esecuzione): [lo stesso numero]
+        </p>
+        <p class="explanation">
+            Il vantaggio principale di <code>jit</code> è la velocità, che non è visibile in questo output statico, ma sarebbe evidente misurando i tempi di esecuzione. Attenzione: <code>jit</code> funziona meglio con funzioni "pure" (che non hanno effetti collaterali come la stampa o la modifica di variabili globali) e dove la logica non dipende troppo dai valori specifici degli input.
+        </p>
+
+        <!-- Sezione jax.grad -->
+        <h2>3. <code>jax.grad</code>: Differenziazione Automatica</h2>
+        <p class="explanation">
+            Questo è uno strumento potentissimo, specialmente per l'ottimizzazione e il machine learning. <code>jax.grad</code> calcola automaticamente la derivata (o gradiente) di una funzione rispetto ai suoi input.
+        </p>
+        <p class="explanation">
+            Ricorda dalla matematica: la derivata di una funzione in un punto ti dice "quanto velocemente" la funzione sta cambiando in quel punto (la sua pendenza). Il gradiente è l'equivalente per funzioni con più input.
+        </p>
+
+        <p class="explanation"><strong>Esempio:</strong> Calcoliamo la derivata di f(x) = x².</p>
+        <pre><code># Definiamo la funzione matematica f(x) = x^2
+def square_func(x):
+  return x * x
+
+# Creiamo una *nuova* funzione che calcola la derivata di square_func
+# Per default, grad calcola la derivata rispetto al primo argomento (x)
+grad_square = jax.grad(square_func)
+
+# Calcoliamo la derivata in un punto specifico, ad esempio x = 3.0
+# Sappiamo dalla matematica che la derivata di x^2 è 2x.
+# Quindi, per x=3, la derivata dovrebbe essere 2 * 3 = 6.
+gradient_at_3 = grad_square(3.0) # Nota: JAX grad richiede input float
+
+print(f"La funzione originale f(x) = x^2")
+print(f"Valore di f(3.0) = {square_func(3.0)}")
+print(f"La derivata di f(x) calcolata da JAX in x=3.0 è: {gradient_at_3}")
+print(f"Il valore atteso (2*x) per x=3.0 è: {2 * 3.0}")</code></pre>
+         <p class="output">Output atteso:<br>
+           La funzione originale f(x) = x^2<br>
+           Valore di f(3.0) = 9.0<br>
+           La derivata di f(x) calcolata da JAX in x=3.0 è: 6.0<br>
+           Il valore atteso (2*x) per x=3.0 è: 6.0
+        </p>
+
+        <p class="explanation"><strong>Esempio 2:</strong> Funzione con più argomenti.</p>
+         <pre><code># Funzione f(x, y) = x^2 + y^3
+def my_func(x, y):
+    return x**2 + y**3
+
+# Gradiente rispetto al primo argomento (x) -> derivata parziale d(f)/dx = 2x
+grad_x = jax.grad(my_func, argnums=0)
+
+# Gradiente rispetto al secondo argomento (y) -> derivata parziale d(f)/dy = 3y^2
+grad_y = jax.grad(my_func, argnums=1)
+
+# Valutiamo in (x=2.0, y=3.0)
+df_dx = grad_x(2.0, 3.0) # Atteso: 2 * 2.0 = 4.0
+df_dy = grad_y(2.0, 3.0) # Atteso: 3 * (3.0)^2 = 3 * 9.0 = 27.0
+
+print(f"f(x, y) = x^2 + y^3")
+print(f"f(2.0, 3.0) = {my_func(2.0, 3.0)}") # 4 + 27 = 31
+print(f"Derivata rispetto a x in (2.0, 3.0): {df_dx}")
+print(f"Derivata rispetto a y in (2.0, 3.0): {df_dy}")</code></pre>
+        <p class="output">Output atteso:<br>
+           f(x, y) = x^2 + y^3<br>
+           f(2.0, 3.0) = 31.0<br>
+           Derivata rispetto a x in (2.0, 3.0): 4.0<br>
+           Derivata rispetto a y in (2.0, 3.0): 27.0
+        </p>
+        <p class="explanation">
+             <code>jax.grad</code> è fondamentale perché permette agli algoritmi di machine learning (come la discesa del gradiente) di "imparare" aggiustando i parametri per minimizzare un errore, basandosi appunto sul gradiente dell'errore rispetto ai parametri.
+        </p>
+
+        <h2>Conclusione</h2>
+        <p class="explanation">
+            Questi sono solo tre esempi delle potenti trasformazioni di funzioni offerte da JAX:
+        </p>
+        <ul>
+            <li><code>jax.vmap</code>: Per applicare funzioni a batch di dati in modo efficiente.</li>
+            <li><code>jax.jit</code>: Per compilare e accelerare le tue funzioni JAX.</li>
+            <li><code>jax.grad</code>: Per calcolare automaticamente derivate e gradienti.</li>
+        </ul>
+        <p class="explanation">
+            La vera forza di JAX sta nel poter combinare queste trasformazioni (ad esempio, puoi fare il <code>jit</code> di una funzione che usa <code>vmap</code> e calcolarne il <code>grad</code>). Questo lo rende uno strumento estremamente flessibile e performante per la ricerca e il calcolo scientifico.
+        </p>
+    </div>
+</body>
+</html>

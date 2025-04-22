@@ -22,13 +22,25 @@
     
     <div class="container">
         <a href="../../index.html" class="btn btn-back">← Torna alla Home</a>
+        <a href="jax_fundamentals.html" class="btn btn-tutorial">VMAP, GRAD, JIT: Le tre colonne portanti di JAX →</a>
         <a href="jax_training.html" class="btn btn-tutorial">Tutorial: Addestramento MLP su MNIST →</a>
+        <a href="jax_advanced.html" class="btn btn-tutorial">Avanzato: Differenziazione Automatica e Allenamento Distribuito →</a>
         
-        <!-- SEZIONE 1: Backend e Architettura di JAX -->
+        <!-- SEZIONE 1: Introduzione, Backend e Architettura di JAX -->
+        <div class="content-section">
+            <h2>Introduzione a JAX (Numpy on steroids)</h2>
+            <p>JAX è un framework di calcolo numerico sviluppato da Google Research che combina NumPy con la differenziazione automatica e l'accelerazione hardware. La sua familiarità con la sintassi di NumPy
+                lo rende comprensibile e facile da usare rendendo il percorso di apprendimento più semplice per chi si è già approcciato al calcolo numerico in Python. Quello che gli sviluppatori hanno fatto è stato prendere il
+                codice sorgente aperto di NumPy e scriverne una versione apparentemente identica, ma che permette di essere eseguita su vari acceleratori come GPU e simili (vedi jax.numpy).
+                Anche se spesso ci si trova a lavorare con JAX in modo simile a NumPy, JAX è molto più di una semplice libreria NumPy accelerata. Infatti, JAX offre anche la differenziazione automatica (jax.grad) e la compilazione just-in-time (jax.jit) per ottimizzare le prestazioni del codice.
+                Queste funzioni vengono esplorate nel dettaglio nella pagina a loro dedicata "VMAP, GRAD, JIT: Le tre colonne portanti di JAX". Le potenzialità di JAX non si fermano qui, nella sua libreria possiamo trovare numerse altre feature che ci permettono di scrivere
+                kernel per GPU e TPU senza l'utilizzo di CUDA o OpenCL (jax.pallas), parallelizzare il calcolo su più dispositivi modificando di poco il codice che si scriverebbe normalmente, e molto altro.
+            </p>
+        </div>
         <div class="content-section">
             <h2>Il Backend di JAX e la sua Architettura</h2>
             
-            <p>JAX è un framework di calcolo numerico sviluppato da Google Research che combina NumPy con la differenziazione automatica e l'accelerazione hardware. Il nome "JAX" sta per "Just After eXecution" (subito dopo l'esecuzione), un riferimento al suo approccio di tracciamento e compilazione del codice.</p>
+            <p>Il nome "JAX" sta per "Just After eXecution" (subito dopo l'esecuzione), un riferimento al suo approccio di tracciamento e compilazione del codice.</p>
             
             <h3>Architettura e Component di JAX</h3>
             <p>JAX è costruito su una serie di componenti che lavorano insieme per fornire le sue funzionalità principali:</p>
@@ -59,8 +71,8 @@
             <ul>
                 <li><strong>grad</strong>: Calcola i gradienti di una funzione rispetto ai suoi input</li>
                 <li><strong>vmap</strong>: Vettorizza una funzione lungo una dimensione aggiuntiva</li>
-                <li><strong>pmap</strong>: Parallelizza una funzione su dispositivi multipli</li>
                 <li><strong>jit</strong>: Compila una funzione per esecuzione ottimizzata</li>
+                <li><strong>shard_map</strong>: Parallelizzazione manuale di una funzione su dispositivi multipli</li>
             </ul>
             
             <h4>3. Compilazione con XLA</h4>
@@ -82,12 +94,34 @@
             <h3>Principi Funzionali e Immutabilità</h3>
             <p>JAX adotta una filosofia di programmazione funzionale che ha profondi effetti sul suo design:</p>
             <ul>
-                <li><strong>Immutabilità</strong>: Gli array JAX sono immutabili, il che significa che le operazioni creano nuovi array invece di modificare quelli esistenti</li>
+                <li><strong>Immutabilità</strong>: Gli array JAX sono immutabili, il che significa che le operazioni creano nuovi array invece di modificare quelli esistenti. Spesso ci capita di vedere 
+                in Python delle modifiche dette in-place, questo raramente succede in JAX che nasce con l'obiettivo di imitare i linguaggi con logiche di programmazione funzionale <a href="https://it.wikipedia.org/wiki/Programmazione_funzionale">
+                    Programmazione funzionale</a>,
+                che a loro volta nascondo per portare il linguaggio formale matematico nei computer.
+                Per esempio, la funzione matematica x**2 resituirà dato in input il valore 2 sempre il valore 4, non si scappa. Questa funzione non ha stati interni che cambiano ogni volta
+                che la si chiama e che non hanno a che fare con la mera computazione della funzione. Si pensi invece ad un semplice for loop e ad una funzione che quando viene chiamata accetta in input i ed x 
+                e poi calcola x**2, ecco che la funzione non è più pura perchè ha uno stato interno, per una stessa x abbiamo uno stesso output ma può essere chiamata con diversi i e nessuno se ne accorge.
+                Questo banale esempio può essere esteso in diversi modi, pensiamo per esempio a delle chiamate ad API esterne ed ad una funzione che osserva queste chiamate, capita spesso che le chiamate restituiscano dati
+                che hanno struttura diversa e non uniforme. Ma perchè insistere sulle funzioni pure? La prima motivazione è che una rete neural vuole approssimare una funzione matematica, tramite composizione di altre funzioni matematiche, quindi questa
+                logica sembrerebbe prestarsi bene al nostro caso applicativo. La seconda motivazione (che mi è parso di capire) è che da un punto di vista implementativo e di velocità del programma, sapere che la mia funzione
+                vedra nel corso della sua vita solo array lunghi n e mai di altre dimensioni è un grosso vantaggio, potrei infatti pensare di compilare questa funzione e usare ogni volta la funzione velocissima compilata per fare i
+                miei calcoli, se invece il mio input cambia spesso la mia funzione vedrà ogni tanto delle matrici, ogni tanto degli array ed ogni tanto dei tensori di più dimensioni, a quel punto non è possibile
+                sfruttare le potenzialità che offre una compilazione a basso livello, la stessa cosa vale per i tipo che caratterizza i dati in input.</li>
                 <li><strong>Funzioni pure</strong>: JAX funziona meglio con funzioni pure (senza effetti collaterali), facilitando l'ottimizzazione e la parallelizzazione</li>
                 <li><strong>Tracciabilità</strong>: Le funzioni devono essere tracciabili da JAX, il che pone alcune restrizioni sul codice Python che può essere usato</li>
             </ul>
             
             <p>Questa architettura dà a JAX diverse caratteristiche uniche rispetto ad altri framework di deep learning. La sua capacità di trasformare le funzioni in modo componibile (applicando più trasformazioni in sequenza) e la sua integrazione con l'ecosistema NumPy lo rendono particolarmente adatto per la ricerca e per compiti che richiedono alta prestazione computazionale.</p>
+            
+            
+            
+            <p>PIU NEL DETTAGLIO: Immagina di avere una funzione Python che fa dei calcoli matematici usando array NumPy (o meglio, jax.numpy). Quando chiedi a JAX di fare qualcosa di "speciale" con questa funzione (come compilarla per la velocità con jax.jit o calcolarne il gradiente con jax.grad), JAX non esegue immediatamente la tua funzione Python nel modo tradizionale.
+                Invece, JAX fa il tracing (tracciamento) della funzione:
+                Esecuzione Simbolica: JAX esegue la tua funzione una volta, ma invece di usare i valori numerici effettivi degli input, usa degli oggetti speciali chiamati tracer. Questi tracer sono come dei segnaposto che registrano le informazioni sulla forma (shape) e sul tipo di dati (dtype) degli array, ma non il loro valore concreto.
+                Registrazione delle Operazioni: Man mano che la funzione viene eseguita con questi tracer, JAX non esegue le operazioni matematiche vere e proprie. Invece, registra la sequenza di operazioni fondamentali di JAX (chiamate primitive) che vengono applicate ai tracer. Ad esempio, se la tua funzione fa y = x + 1, JAX registra un'operazione di "addizione".
+                Creazione di una Rappresentazione Intermedia (Jaxpr): Il risultato di questo processo di registrazione è una rappresentazione intermedia della tua funzione, chiamata jaxpr (JAX Program Representation). La jaxpr è una descrizione pura e funzionale del calcolo, indipendente dal codice Python originale e dai suoi dettagli implementativi (come i cicli for di Python, che vengono "srotolati" durante il tracing). È essenzialmente un grafo computazionale statico.
+                </p>
+
         </div>
         
         <!-- SEZIONE 3: Segnaposto per la sezione futura -->

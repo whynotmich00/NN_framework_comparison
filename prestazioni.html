@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <!-- <style>
-        
-    </style> -->
 </head>
 <body>
     <header>
@@ -85,8 +82,15 @@
         
         <div class="code-section">
             <h2>Codice per il Benchmark</h2>
-            <h3>Keras</h3>
-            <pre>
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="changeTab('keras')">Keras</div>
+                    <div class="tab" onclick="changeTab('pytorch')">PyTorch</div>
+                    <div class="tab" onclick="changeTab('jax')">JAX (Flax)</div>
+                </div>
+                
+                <div id="keras" class="tab-content active">
+                    <pre>
 import tensorflow as tf
 from tensorflow import keras
 import time
@@ -174,10 +178,11 @@ print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 # Valuta il modello
 test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
 print(f"Accuratezza sul test set: {test_acc:.4f}")
-</pre>
-
-            <h3>PyTorch</h3>
-            <pre>
+                    </pre>
+                </div>
+                
+                <div id="pytorch" class="tab-content">
+                    <pre>
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -326,10 +331,11 @@ training_time = train_model(model, trainloader, criterion, optimizer, epochs=10)
 
 # Esegui l'inferenza
 inference_time, accuracy = test_model(model, testloader)
-</pre>
-
-            <h3>JAX (con Flax)</h3>
-            <pre>
+                    </pre>
+                </div>
+                
+                <div id="jax" class="tab-content">
+                    <pre>
 import jax
 import jax.numpy as jnp
 from flax import linen as nn
@@ -442,7 +448,7 @@ def eval_step(state, batch_images, batch_labels):
     return compute_accuracy(logits, batch_labels)
 
 # Funzione batch
-    def get_batch(x, y, batch_size, rng):
+def get_batch(x, y, batch_size, rng):
     dataset_size = x.shape[0]
     indices = jax.random.permutation(rng, jnp.arange(dataset_size))
     for i in range(0, dataset_size, batch_size):
@@ -499,7 +505,9 @@ inference_time = time.time() - start_time
 print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
 print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 print(f"Accuratezza sul test set: {test_accuracy:.4f}")
-</pre>
+                    </pre>
+                </div>
+            </div>
         </div>
         
         <div class="benchmark-results">
@@ -607,5 +615,26 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
             <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
         </div>
     </footer>
-</body>
-</html>
+    
+    <script>
+        function changeTab(tabName) {
+            // Nascondi tutti i contenuti delle tab
+            var tabContents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Rimuovi la classe active da tutte le tab
+            var tabs = document.getElementsByClassName('tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Mostra il contenuto della tab selezionata
+            document.getElementById(tabName).classList.add('active');
+            
+            // Aggiungi la classe active alla tab selezionata
+            var selectedTabButton = document.querySelector('.tab[onclick="changeTab(\'' + tabName + '\')"]');
+            selectedTabButton.classList.add('active');
+        }
+    </script>

@@ -4,168 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analisi Prestazioni Framework Reti Neurali</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <!-- Aggiungi Prism.js per la formattazione del codice -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <style>
-        /* Reset di base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 30px 0;
-            margin-bottom: 30px;
-        }
-        
-        header h1 {
-            margin-bottom: 10px;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-bottom: 30px;
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        h2 {
-            margin: 30px 0 20px;
-            color: #2c3e50;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        
-        h3 {
-            margin: 20px 0 15px;
-            color: #34495e;
-        }
-        
-        p {
-            margin-bottom: 20px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        
-        ul, ol {
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
-        
-        li {
-            margin-bottom: 10px;
-        }
-        
-        pre {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        footer {
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            margin-top: 50px;
-        }
-        
-        .image-caption {
-            text-align: center;
-            font-style: italic;
-            margin-top: 10px;
-            margin-bottom: 30px;
-            color: #666;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 20px auto;
-        }
-        
-        /* Stili per le tab */
-        .tabs-container {
-            margin-bottom: 30px;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 0;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            border-bottom: none;
-            margin-bottom: -1px;
-            background-color: #f8f9fa;
-        }
-        
-        .tab.active {
-            background-color: white;
-            border-color: #ddd;
-            border-bottom-color: white;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .tab-content {
-            display: none;
-            border: 1px solid #ddd;
-            border-top: none;
-            padding: 20px;
-            background-color: white;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
+    .tab {
+      padding: 10px 20px;
+      margin-right: 5px;
+      background: #ddd;
+      border-radius: 5px 5px 0 0;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #fff;
+      font-weight: bold;
+      border-bottom: 2px solid white;
+    }
+
+    .tab-content {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0 5px 5px 5px;
+      padding: 20px;
+      display: none;
+    }
+
+    .code-container.active {
+      display: block;
+    }
+
+    pre {
+      margin: 0;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
     </style>
 </head>
 <body>
@@ -230,7 +109,7 @@
             <p>Tutti i test di benchmark sono stati eseguiti con le seguenti specifiche hardware:</p>
             <ul>
                 <li><strong>GPU:</strong> NVIDIA A40 (48GB GDDR6)</li>
-                <li><strong>CPU:</strong> Intel Xeon Gold 6238R CPU @ 2.20GHz (24 core)</li>
+                <li><strong>CPU:</strong> Intel Xeon Gold 6238R CPU @ 2.20GHz (56 core (?))</li>
                 <li><strong>RAM:</strong> 256GB DDR4</li>
                 <li><strong>Sistema Operativo:</strong> Ubuntu 22.04 LTS</li>
                 <li><strong>Driver NVIDIA:</strong> 535.104.05</li>
@@ -244,13 +123,13 @@
             <h2>Codice per il Benchmark</h2>
             <div class="tabs-container">
                 <div class="tabs">
-                    <div class="tab active" onclick="changeTab('keras')">Keras</div>
-                    <div class="tab" onclick="changeTab('pytorch')">PyTorch</div>
-                    <div class="tab" onclick="changeTab('jax')">JAX (Flax)</div>
+                    <div class="tab active" data-tab="keras">Keras</div>
+                    <div class="tab" data-tab="pytorch">PyTorch</div>
+                    <div class="tab" data-tab="jax">JAX (Flax)</div>
                 </div>
                 
                 <div id="keras" class="tab-content active">
-                    <pre>
+                    <pre><code class="language-python">
 import tensorflow as tf
 from tensorflow import keras
 import time
@@ -338,11 +217,11 @@ print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 # Valuta il modello
 test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
 print(f"Accuratezza sul test set: {test_acc:.4f}")
-                    </pre>
+                    </code></pre>
                 </div>
                 
                 <div id="pytorch" class="tab-content">
-                    <pre>
+                    <pre><code class="language-python">
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -491,11 +370,11 @@ training_time = train_model(model, trainloader, criterion, optimizer, epochs=10)
 
 # Esegui l'inferenza
 inference_time, accuracy = test_model(model, testloader)
-                    </pre>
+                    </code></pre>
                 </div>
                 
                 <div id="jax" class="tab-content">
-                    <pre>
+                    <pre><code class="language-python">
 import jax
 import jax.numpy as jnp
 from flax import linen as nn
@@ -665,7 +544,7 @@ inference_time = time.time() - start_time
 print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
 print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 print(f"Accuratezza sul test set: {test_accuracy:.4f}")
-                    </pre>
+                    </code></pre>
                 </div>
             </div>
         </div>
@@ -776,25 +655,51 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
         </div>
     </footer>
     
-    <script>
-        function changeTab(tabName) {
-            // Nascondi tutti i contenuti delle tab
-            var tabContents = document.getElementsByClassName('tab-content');
-            for (var i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-            
-            // Rimuovi la classe active da tutte le tab
-            var tabs = document.getElementsByClassName('tab');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            
-            // Mostra il contenuto della tab selezionata
-            document.getElementById(tabName).classList.add('active');
-            
-            // Aggiungi la classe active alla tab selezionata
-            var selectedTabButton = document.querySelector('.tab[onclick="changeTab(\'' + tabName + '\')"]');
-            selectedTabButton.classList.add('active');
-        }
-    </script>
+          <script>
+            const tabs = document.querySelectorAll('.tab');
+            const containers = document.querySelectorAll('.tab-content');
+    
+            tabs.forEach(tab => {
+              tab.addEventListener('click', () => {
+                // --- Deactivate all ---
+                tabs.forEach(t => t.classList.remove('active'));
+                containers.forEach(c => c.classList.remove('active'));
+    
+                // --- Activate clicked tab and its container ---
+                tab.classList.add('active');
+                const activeContainer = document.getElementById(tab.dataset.tab);
+                activeContainer.classList.add('active');
+    
+                // --- NEW: Tell Prism to highlight the code in the newly active tab ---
+                const activeCodeBlock = activeContainer.querySelector('pre code');
+                if (activeCodeBlock) {
+                  // Ensure Prism and the component are loaded before calling this
+                  if (window.Prism) {
+                      Prism.highlightElement(activeCodeBlock);
+                  }
+                }
+                // --- End of new code ---
+              });
+            });
+    
+            // Optional: Ensure the *first* tab's code is highlighted on initial load.
+            // Prism.highlightAll() usually handles this automatically if run after the DOM is ready,
+            // but explicitly calling it can sometimes help if there are timing issues.
+            document.addEventListener('DOMContentLoaded', (event) => {
+               const initialActiveContainer = document.querySelector('.tab-content.active');
+               if (initialActiveContainer) {
+                   const initialCodeBlock = initialActiveContainer.querySelector('pre code');
+                   if (initialCodeBlock && window.Prism) {
+                       // Might be redundant if Prism.highlightAll() works correctly,
+                       // but doesn't hurt to ensure the first one is highlighted.
+                       // Prism.highlightElement(initialCodeBlock);
+                       // Alternatively, ensure Prism.highlightAll runs correctly.
+                       // Often, just including Prism.js script at the end or using
+                       // its auto-loader handles the initial load fine.
+                       // The key fix is the highlighting *inside the click event*.
+                   }
+               }
+            });
+          </script>
+    </body>
+    </html>

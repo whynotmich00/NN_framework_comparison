@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </head>
 <body>
     <header>
@@ -23,7 +26,6 @@
     <div class="container">
         <a href="jax.html" class="btn btn-back">← Torna a JAX</a>
         
-        <!-- CONTENUTO: Addestramento di una MLP su MNIST -->
         <div class="content-section">
             <h2>Addestramento di una Rete MLP su MNIST con JAX</h2>
             
@@ -31,7 +33,7 @@
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
             <div class="code-block">
-<pre>import jax
+<pre><code class="language-python">import jax
 import jax.numpy as jnp
 from jax import grad, jit, vmap
 from jax import random
@@ -54,239 +56,156 @@ print("Dispositivi disponibili:", jax.devices())
 batch_size = 64
 learning_rate = 0.001
 num_epochs = 10
-momentum = 0.9</pre>
+momentum = 0.9</code></pre>
             </div>
             
             <h3>2. Caricamento e Preparazione del Dataset MNIST</h3>
             <div class="code-block">
-<pre>import tensorflow as tf
-tf.config.set_visible_devices([], 'GPU')  # Impediamo a TF di usare la GPU
+<pre><code class="language-python">import tensorflow as tf
+tf.config.set_visible_devices([], 'GPU')
 
-# Carichiamo MNIST usando TensorFlow, ma poi lo convertiamo in array JAX
 def load_dataset():
-    # Caricamento del dataset
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    
-    # Normalizzazione e conversione in float32
     x_train = x_train.astype(np.float32) / 255.0
     x_test = x_test.astype(np.float32) / 255.0
-    
-    # Appiattimento delle immagini
     x_train = x_train.reshape(-1, 28*28)
     x_test = x_test.reshape(-1, 28*28)
-    
-    # Conversione delle etichette in interi
     y_train = y_train.astype(np.int32)
     y_test = y_test.astype(np.int32)
-    
     return x_train, y_train, x_test, y_test
 
-# Caricamento dei dati
 x_train, y_train, x_test, y_test = load_dataset()
 print("Forma dei dati di training:", x_train.shape)
 print("Forma delle etichette di training:", y_train.shape)
 
-# Funzione per creare batch
 def get_batch(rng, x, y, batch_size):
     dataset_size = x.shape[0]
-    # Generazione di indici casuali
     key, rng = random.split(rng)
     indices = random.permutation(key, jnp.arange(dataset_size))
     start_idx = 0
-    
     while start_idx < dataset_size:
         batch_idx = indices[start_idx:start_idx + batch_size]
         yield x[batch_idx], y[batch_idx]
-        start_idx += batch_size</pre>
+        start_idx += batch_size</code></pre>
             </div>
             
             <h3>3. Definizione dell'Architettura della Rete con Flax</h3>
             <div class="code-block">
-<pre>class MLP(nn.Module):
+<pre><code class="language-python">class MLP(nn.Module):
     @nn.compact
     def __call__(self, x, training=True):
-        # Primo layer fully connected con 512 unità
         x = nn.Dense(features=512)(x)
         x = nn.relu(x)
-        # Dropout per regolarizzazione (attivo solo durante il training)
         x = nn.Dropout(rate=0.2, deterministic=not training)(x)
-        
-        # Secondo layer fully connected con 256 unità
         x = nn.Dense(features=256)(x)
         x = nn.relu(x)
         x = nn.Dropout(rate=0.2, deterministic=not training)(x)
-        
-        # Layer di output con 10 unità (una per ogni cifra)
         x = nn.Dense(features=10)(x)
         return x
 
-# Inizializzazione del modello
 def create_train_state(rng, learning_rate, momentum):
-    """Crea e inizializza uno stato di addestramento."""
-    # Inizializzazione del modello con una chiave casuale
     model = MLP()
-    
-    # Generazione di un batch di dati fittizi per inizializzare i parametri
     dummy_input = jnp.ones((1, 28*28))
     params = model.init(rng, dummy_input)['params']
-    
-    # Definizione dell'ottimizzatore (SGD con momentum)
     tx = optax.sgd(learning_rate=learning_rate, momentum=momentum)
-    
-    # Creazione dello stato di addestramento che contiene parametri e ottimizzatore
     return train_state.TrainState.create(
         apply_fn=model.apply,
         params=params,
         tx=tx,
-    )</pre>
+    )</code></pre>
             </div>
             
             <h3>4. Implementazione delle Funzioni di Loss e Accuracy</h3>
             <div class="code-block">
-<pre>def cross_entropy_loss(logits, labels):
+<pre><code class="language-python">def cross_entropy_loss(logits, labels):
     labels_onehot = jax.nn.one_hot(labels, 10)
     return optax.softmax_cross_entropy(logits=logits, labels=labels_onehot).mean()
 
 def compute_metrics(logits, labels):
     loss = cross_entropy_loss(logits, labels)
     accuracy = jnp.mean(jnp.argmax(logits, -1) == labels)
-    return {'loss': loss, 'accuracy': accuracy}</pre>
+    return {'loss': loss, 'accuracy': accuracy}</code></pre>
             </div>
             
             <h3>5. Definizione dei Loop di Addestramento e Valutazione</h3>
             <div class="code-block">
-<pre>@jax.jit
+<pre><code class="language-python">@jax.jit
 def train_step(state, batch):
-    """Esegue un singolo passo di addestramento."""
     x, y = batch
-    
-    # Definizione di una funzione di loss per il calcolo del gradiente
     def loss_fn(params):
         logits = state.apply_fn({'params': params}, x, training=True)
         loss = cross_entropy_loss(logits, y)
         return loss, logits
-    
-    # Calcolo di loss e gradiente
     (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(state.params)
-    
-    # Aggiornamento dei parametri usando l'ottimizzatore
     state = state.apply_gradients(grads=grads)
-    
-    # Calcolo delle metriche
     metrics = compute_metrics(logits, y)
     return state, metrics
 
 @jax.jit
 def eval_step(state, batch):
-    """Valuta il modello su un batch."""
     x, y = batch
-    
-    # Forward pass in modalità valutazione (senza dropout)
     logits = state.apply_fn({'params': state.params}, x, training=False)
-    
-    # Calcolo delle metriche
-    return compute_metrics(logits, y)</pre>
+    return compute_metrics(logits, y)</code></pre>
             </div>
             
             <h3>6. Esecuzione dell'Addestramento</h3>
             <div class="code-block">
-<pre>def train_epoch(state, train_ds, batch_size, rng):
-    """Addestra per un'epoca intera."""
-    # Inizializzazione delle metriche
+<pre><code class="language-python">def train_epoch(state, train_ds, batch_size, rng):
     train_metrics = []
-    
-    # Iterate sui batch
     for x, y in get_batch(rng, *train_ds, batch_size):
-        # Esecuzione di un passo di addestramento
         state, metrics = train_step(state, (x, y))
         train_metrics.append(metrics)
-    
-    # Calcolo media delle metriche sull'intera epoca
-    train_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), 
-                                  train_metrics)
+    train_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), train_metrics)
     return state, train_metrics, rng
 
 def eval_model(state, test_ds, batch_size):
-    """Valuta il modello sull'intero dataset di test."""
-    # Inizializzazione delle metriche
     test_metrics = []
-    
-    # Iterate sui batch
     for x, y in get_batch(random.PRNGKey(0), *test_ds, batch_size):
         metrics = eval_step(state, (x, y))
         test_metrics.append(metrics)
-    
-    # Calcolo media delle metriche sull'intero dataset
-    test_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), 
-                                test_metrics)
+    test_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), test_metrics)
     return test_metrics
 
-# Inizializzazione della chiave casuale per la riproducibilità
 rng = random.PRNGKey(0)
-
-# Inizializzazione dello stato di addestramento
 rng, init_rng = random.split(rng)
 state = create_train_state(init_rng, learning_rate, momentum)
-
-# Preparazione dei dataset
 train_ds = (x_train, y_train)
 test_ds = (x_test, y_test)
-
-# Record delle metriche durante l'addestramento
 train_metrics_history = []
 test_metrics_history = []
 
-# Loop principale di addestramento
 for epoch in range(num_epochs):
-    # Eseguo un'epoca di addestramento
     rng, epoch_rng = random.split(rng)
     state, train_metrics, rng = train_epoch(state, train_ds, batch_size, epoch_rng)
-    
-    # Valuto il modello
     test_metrics = eval_model(state, test_ds, batch_size)
-    
-    # Stampo le metriche correnti
     print(f'Epoca {epoch+1}/{num_epochs}: '
           f'train_loss={train_metrics["loss"]:.4f}, '
           f'train_accuracy={train_metrics["accuracy"]:.4f}, '
           f'test_loss={test_metrics["loss"]:.4f}, '
           f'test_accuracy={test_metrics["accuracy"]:.4f}')
-    
-    # Salvo le metriche nella storia
     train_metrics_history.append(train_metrics)
-    test_metrics_history.append(test_metrics)</pre>
+    test_metrics_history.append(test_metrics)</code></pre>
             </div>
-            
+
             <h3>Output Tipico dell'Addestramento</h3>
             <div class="output-block">
-<pre>Dispositivi disponibili: [CpuDevice(id=0)]
+<pre><code class="language-none">Dispositivi disponibili: [CpuDevice(id=0)]
 Forma dei dati di training: (60000, 784)
 Forma delle etichette di training: (60000,)
 Epoca 1/10: train_loss=0.3219, train_accuracy=0.9078, test_loss=0.1532, test_accuracy=0.9556
 Epoca 2/10: train_loss=0.1488, train_accuracy=0.9561, test_loss=0.1084, test_accuracy=0.9674
-Epoca 3/10: train_loss=0.1137, train_accuracy=0.9672, test_loss=0.0967, test_accuracy=0.9704
-Epoca 4/10: train_loss=0.0962, train_accuracy=0.9723, test_loss=0.0881, test_accuracy=0.9737
-Epoca 5/10: train_loss=0.0842, train_accuracy=0.9756, test_loss=0.0828, test_accuracy=0.9748
-Epoca 6/10: train_loss=0.0752, train_accuracy=0.9780, test_loss=0.0789, test_accuracy=0.9772
-Epoca 7/10: train_loss=0.0681, train_accuracy=0.9802, test_loss=0.0761, test_accuracy=0.9776
-Epoca 8/10: train_loss=0.0623, train_accuracy=0.9819, test_loss=0.0743, test_accuracy=0.9781
-Epoca 9/10: train_loss=0.0573, train_accuracy=0.9835, test_loss=0.0730, test_accuracy=0.9788
-Epoca 10/10: train_loss=0.0531, train_accuracy=0.9847, test_loss=0.0718, test_accuracy=0.9793</pre>
+...</code></pre>
             </div>
-            
+
             <h3>7. Visualizzazione dei Risultati</h3>
             <div class="code-block">
-<pre># Estrazione delle metriche per la visualizzazione
-epochs = range(1, num_epochs + 1)
+<pre><code class="language-python">epochs = range(1, num_epochs + 1)
 train_loss = [metrics['loss'] for metrics in train_metrics_history]
 train_accuracy = [metrics['accuracy'] for metrics in train_metrics_history]
 test_loss = [metrics['loss'] for metrics in test_metrics_history]
 test_accuracy = [metrics['accuracy'] for metrics in test_metrics_history]
 
-# Creazione dei grafici
 plt.figure(figsize=(12, 5))
-
-# Grafico della loss
 plt.subplot(1, 2, 1)
 plt.plot(epochs, train_loss, label='Train Loss')
 plt.plot(epochs, test_loss, label='Test Loss')
@@ -295,7 +214,6 @@ plt.ylabel('Loss')
 plt.title('Training e Test Loss')
 plt.legend()
 
-# Grafico dell'accuratezza
 plt.subplot(1, 2, 2)
 plt.plot(epochs, train_accuracy, label='Train Accuracy')
 plt.plot(epochs, test_accuracy, label='Test Accuracy')
@@ -306,13 +224,13 @@ plt.legend()
 
 plt.tight_layout()
 plt.savefig('jax_mnist_history.png')
-plt.show()</pre>
+plt.show()</code></pre>
             </div>
-            
-            <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali. La caratteristica principale è l'uso di trasformazioni funzionali come <code>jit</code> per compilare e ottimizzare le funzioni, e la chiarezza con cui viene definito il flusso di addestramento passo-passo. La filosofia funzionale di JAX è evidente nel modo in cui lo stato del modello viene gestito in modo esplicito e immutabile.</p>
+
+            <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali...</p>
         </div>
     </div>
-    
+
     <footer>
         <div class="container">
             <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
