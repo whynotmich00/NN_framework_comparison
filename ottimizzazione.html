@@ -7,38 +7,496 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <style>
-        .back-link {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 8px 16px;
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        
-        .back-link:hover {
-            background-color: #5a6268;
-        }
-    </style>
 </head>
 <body>
     <header>
         <div class="container">
             <h1>Ottimizzazione nei Framework per Reti Neurali</h1>
-            <p>Tecniche di ottimizzazione dei modelli in Keras, PyTorch e JAX</p>
+            <p>Tecniche di ottimizzazione dei modelli e strategie di deployment in Keras, PyTorch e JAX</p>
         </div>
     </header>
     
     <div class="container">
         <a href="index.html" class="back-link">← Torna alla Home</a>
         
-        <!-- Contenuto della pagina da aggiungere in futuro -->
-        <div class="coming-soon">
-            <h2>Contenuto in sviluppo</h2>
-            <p>Questa sezione è attualmente in fase di sviluppo. Torneremo presto con un'analisi dettagliata delle tecniche di ottimizzazione dei modelli nei diversi framework.</p>
+        <div class="introduction-section">
+            <h2>Introduzione all'Ottimizzazione dei Modelli</h2>
+            <p>L'ottimizzazione dei modelli di reti neurali è un processo cruciale per il deployment in produzione. Consiste nel trasformare un modello addestrato in una versione più efficiente e leggera, mantenendo prestazioni simili. Questa pagina esplora le tecniche di ottimizzazione disponibili nei tre framework principali e come implementarle efficacemente.</p>
+            
+            <div class="optimization-diagram">
+                <img src="images/optimization_workflow.png" alt="Flusso di lavoro di ottimizzazione dei modelli">
+                <p class="image-caption">Flusso di lavoro tipico dell'ottimizzazione dei modelli per il deployment</p>
+            </div>
+        </div>
+        
+        <div class="technique-box">
+            <h2>Quantizzazione</h2>
+            <p>La quantizzazione riduce la precisione dei pesi da 32-bit floating-point a formati a precisione inferiore (ad esempio 8-bit integer), diminuendo la dimensione del modello e accelerando l'inferenza.</p>
+            
+            <div class="tech-comparison">
+                <div class="tech-card keras-tech">
+                    <h3>Keras/TensorFlow</h3>
+                    <p>TensorFlow Lite offre quantizzazione post-training (PTQ) e quantizzazione aware-training (QAT). Supporta formati INT8, FLOAT16 e operazioni ibride.</p>
+                    <pre class="code-block">
+import tensorflow as tf
+
+# Modello originale
+model = tf.keras.models.load_model('model.h5')
+
+# Conversione a TFLite con quantizzazione
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.target_spec.supported_types = [tf.int8]
+quantized_model = converter.convert()
+
+# Salvataggio del modello quantizzato
+with open('model_quantized.tflite', 'wb') as f:
+    f.write(quantized_model)</pre>
+                </div>
+                
+                <div class="tech-card pytorch-tech">
+                    <h3>PyTorch</h3>
+                    <p>PyTorch supporta quantizzazione dinamica, statica e aware-training tramite il modulo torch.quantization. Offre anche quantizzazione con NVIDIA TensorRT.</p>
+                    <pre class="code-block">
+import torch
+
+# Modello originale
+model = torch.load('model.pth')
+model.eval()
+
+# Quantizzazione statica
+quantized_model = torch.quantization.quantize_static(
+    model,
+    {torch.nn.Linear},
+    torch.quantization.default_qconfig
+)
+
+# Salvataggio del modello quantizzato
+torch.jit.save(torch.jit.script(quantized_model), 
+               'model_quantized.pt')</pre>
+                </div>
+                
+                <div class="tech-card jax-tech">
+                    <h3>JAX</h3>
+                    <p>JAX supporta conversione precisa tra tipi float e bfloat16, utile per TPU. Supporta anche Optax per quantizzazione a bassa precisione.</p>
+                    <pre class="code-block">
+import jax
+import jax.numpy as jnp
+
+# Funzione con precisione ridotta
+@jax.jit
+def forward_bfloat16(params, inputs):
+    # Cast dei parametri a bfloat16
+    params_bf16 = jax.tree_map(
+        lambda x: x.astype(jnp.bfloat16), 
+        params
+    )
+    # Esegui forward pass
+    outputs = model_apply(params_bf16, inputs)
+    # Cast dei risultati a float32
+    return jax.tree_map(
+        lambda x: x.astype(jnp.float32), 
+        outputs
+    )</pre>
+                </div>
+            </div>
+            
+            <div class="note-box">
+                <h4>Considerazioni sulla Quantizzazione</h4>
+                <ul>
+                    <li>La quantizzazione può ridurre la dimensione del modello fino a 4x</li>
+                    <li>Può accelerare l'inferenza fino a 3x su CPU</li>
+                    <li>La perdita di accuratezza varia tipicamente dallo 0% al 3%, a seconda della complessità del modello</li>
+                    <li>I modelli più profondi e complessi tendono a essere più resistenti alla perdita di precisione</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="technique-box">
+            <h2>Pruning (Potatura)</h2>
+            <p>Il pruning rimuove connessioni (pesi) o interi neuroni che contribuiscono poco all'output finale, creando modelli più piccoli e spesso con migliori capacità di generalizzazione.</p>
+            
+            <div class="tech-comparison">
+                <div class="tech-card keras-tech">
+                    <h3>Keras/TensorFlow</h3>
+                    <p>TensorFlow Model Optimization Toolkit offre pruning strutturato e non strutturato con controllo granulare.</p>
+                    <pre class="code-block">
+import tensorflow as tf
+import tensorflow_model_optimization as tfmot
+
+# Applica pruning durante l'addestramento
+pruning_schedule = tfmot.sparsity.keras.PolynomialDecay(
+    initial_sparsity=0.0,
+    final_sparsity=0.5,
+    begin_step=0,
+    end_step=1000
+)
+
+pruned_model = tfmot.sparsity.keras.prune_low_magnitude(
+    model, 
+    pruning_schedule=pruning_schedule
+)
+
+# Compila e allena il modello potato
+pruned_model.compile(...)
+pruned_model.fit(...)</pre>
+                </div>
+                
+                <div class="tech-card pytorch-tech">
+                    <h3>PyTorch</h3>
+                    <p>PyTorch supporta pruning tramite torch.nn.utils.prune e integrazioni con librerie come Neural Network Intelligence (NNI).</p>
+                    <pre class="code-block">
+import torch
+from torch.nn.utils import prune
+
+# Applicazione di pruning L1 unstructured
+for name, module in model.named_modules():
+    if isinstance(module, torch.nn.Conv2d):
+        prune.l1_unstructured(
+            module, 
+            name='weight', 
+            amount=0.3
+        )
+
+# Rendi il pruning permanente
+for module in model.modules():
+    if isinstance(module, torch.nn.Conv2d):
+        prune.remove(module, 'weight')</pre>
+                </div>
+                
+                <div class="tech-card jax-tech">
+                    <h3>JAX</h3>
+                    <p>JAX supporta pruning personalizzato attraverso le trasformazioni funzionali e l'uso di maschere sui parametri.</p>
+                    <pre class="code-block">
+import jax
+import jax.numpy as jnp
+
+def create_pruning_mask(params, sparsity):
+    """Crea una maschera per il pruning."""
+    masks = {}
+    for layer_name, weights in params.items():
+        if "kernel" in layer_name:
+            abs_weights = jnp.abs(weights)
+            threshold = jnp.percentile(
+                abs_weights, 
+                sparsity * 100
+            )
+            masks[layer_name] = abs_weights > threshold
+    return masks
+
+# Applica la maschera durante l'inferenza
+def apply_pruning(params, masks):
+    pruned_params = {}
+    for layer_name, weights in params.items():
+        if layer_name in masks:
+            pruned_params[layer_name] = weights * masks[layer_name]
+        else:
+            pruned_params[layer_name] = weights
+    return pruned_params</pre>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <h4>Attenzione al Pruning</h4>
+                <p>Il pruning aggressivo può degradare significativamente le prestazioni. È consigliabile:</p>
+                <ul>
+                    <li>Iniziare con tassi di pruning conservativi (20-30%)</li>
+                    <li>Utilizzare tecniche di fine-tuning dopo il pruning</li>
+                    <li>Monitorare attentamente non solo l'accuratezza ma anche la robustezza del modello</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="technique-box">
+            <h2>Distillazione della Conoscenza</h2>
+            <p>La distillazione trasferisce "conoscenza" da un modello grande (teacher) a uno più piccolo (student), permettendo al modello più leggero di avvicinarsi alle prestazioni di quello più complesso.</p>
+            
+            <div class="tech-comparison">
+                <div class="tech-card keras-tech">
+                    <h3>Keras/TensorFlow</h3>
+                    <p>Keras permette di implementare facilmente la distillazione attraverso funzioni di loss personalizzate.</p>
+                    <pre class="code-block">
+import tensorflow as tf
+
+# Modelli teacher e student
+teacher = tf.keras.models.load_model('teacher.h5')
+student = create_smaller_model() # Funzione personalizzata
+
+# Funzione di loss per distillazione
+def distillation_loss(y_true, y_pred, 
+                      teacher_logits, temp=5.0, alpha=0.5):
+    # Softmax con temperatura
+    temp_softmax = lambda x: tf.nn.softmax(x / temp)
+    
+    # Loss di distillazione (KL divergence)
+    distill_loss = tf.keras.losses.KLDivergence()(
+        temp_softmax(teacher_logits),
+        temp_softmax(y_pred)
+    )
+    
+    # Loss standard per le etichette vere
+    ce_loss = tf.keras.losses.CategoricalCrossentropy()(
+        y_true, y_pred
+    )
+    
+    # Combinazione pesata
+    return alpha * ce_loss + (1-alpha) * distill_loss * (temp**2)
+
+# Training con distillazione
+def train_step(x, y):
+    with tf.GradientTape() as tape:
+        # Forward pass del teacher (no gradient)
+        teacher_logits = teacher(x, training=False)
+        
+        # Forward pass dello student
+        student_logits = student(x, training=True)
+        
+        # Calcolo della loss combinata
+        loss = distillation_loss(
+            y, student_logits, teacher_logits
+        )
+    
+    # Aggiornamento dei pesi
+    gradients = tape.gradient(
+        loss, student.trainable_variables
+    )
+    optimizer.apply_gradients(
+        zip(gradients, student.trainable_variables)
+    )</pre>
+                </div>
+                
+                <div class="tech-card pytorch-tech">
+                    <h3>PyTorch</h3>
+                    <p>PyTorch offre flessibilità per implementare diverse varianti di distillazione, incluse tecniche avanzate come la distillazione delle feature intermedie.</p>
+                    <pre class="code-block">
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+# Funzione di distillazione
+def distillation_loss(student_logits, teacher_logits, 
+                      targets, temp=5.0, alpha=0.5):
+    # Softmax con temperatura per distillazione
+    soft_targets = F.softmax(teacher_logits / temp, dim=1)
+    soft_prob = F.log_softmax(student_logits / temp, dim=1)
+    
+    # KL divergence
+    distill_loss = F.kl_div(
+        soft_prob, 
+        soft_targets, 
+        reduction='batchmean'
+    ) * (temp * temp)
+    
+    # Cross entropy con target reali
+    ce_loss = F.cross_entropy(student_logits, targets)
+    
+    # Loss combinata
+    return alpha * ce_loss + (1-alpha) * distill_loss
+
+# Training loop
+def train(teacher, student, dataloader, optimizer):
+    teacher.eval()  # Teacher in modalità valutazione
+    student.train()  # Student in modalità training
+    
+    for inputs, targets in dataloader:
+        # Forward pass del teacher (no gradient)
+        with torch.no_grad():
+            teacher_outputs = teacher(inputs)
+        
+        # Forward pass dello student
+        student_outputs = student(inputs)
+        
+        # Calcolo loss
+        loss = distillation_loss(
+            student_outputs, 
+            teacher_outputs, 
+            targets
+        )
+        
+        # Backward e update
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()</pre>
+                </div>
+                
+                <div class="tech-card jax-tech">
+                    <h3>JAX</h3>
+                    <p>JAX permette implementazioni funzionali pure della distillazione della conoscenza, con supporto per la trasformazione JIT.</p>
+                    <pre class="code-block">
+import jax
+import jax.numpy as jnp
+import optax
+
+def kl_divergence(p, q):
+    return jnp.sum(p * (jnp.log(p) - jnp.log(q)))
+
+def softmax_with_temperature(logits, temp=1.0):
+    scaled_logits = logits / temp
+    return jax.nn.softmax(scaled_logits, axis=-1)
+
+# Funzione di loss per distillazione
+def distillation_loss(student_logits, teacher_logits, 
+                      labels, temp=5.0, alpha=0.5):
+    soft_targets = softmax_with_temperature(
+        teacher_logits, temp
+    )
+    soft_preds = softmax_with_temperature(
+        student_logits, temp
+    )
+    
+    # KL divergence per distillazione
+    distill_loss = kl_divergence(soft_targets, soft_preds) * (temp**2)
+    
+    # Cross entropy per le etichette reali
+    ce_loss = optax.softmax_cross_entropy_with_integer_labels(
+        student_logits, labels
+    ).mean()
+    
+    # Loss combinata
+    return alpha * ce_loss + (1-alpha) * distill_loss
+
+# Funzione di training step con JIT
+@jax.jit
+def train_step(state, batch, teacher_params):
+    inputs, labels = batch
+    
+    def loss_fn(params):
+        # Forward pass dello student
+        student_logits = state.apply_fn(
+            {'params': params}, 
+            inputs
+        )
+        
+        # Forward pass del teacher
+        teacher_logits = teacher_apply_fn(
+            {'params': teacher_params}, 
+            inputs
+        )
+        
+        # Calcolo della loss
+        loss = distillation_loss(
+            student_logits, teacher_logits, labels
+        )
+        return loss
+    
+    # Calcolo del gradiente
+    grad_fn = jax.value_and_grad(loss_fn)
+    loss, grads = grad_fn(state.params)
+    
+    # Aggiornamento dello stato
+    return state.apply_gradients(grads=grads), loss</pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="technique-box">
+            <h2>Deployment su Dispositivi Edge</h2>
+            <p>Un edge device (dispositivo di bordo) è un apparecchio hardware che elabora dati localmente, vicino alla loro fonte, invece di inviarli a un data center centralizzato o al cloud. Questi dispositivi operano "ai margini" della rete, da cui deriva il nome "edge".
+                Esempi comuni di edge devices includono:
+                
+                <ul>
+                    <li>Smartphone e tablet</li>
+                    <li>Dispositivi IoT (Internet of Things)</li>
+                    <li>Telecamere intelligenti</li>
+                    <li>Robot e droni</li>
+                    <li>Dispositivi indossabili (smartwatch, visori AR/VR)</li>
+                    <li>Sistemi embedded industriali</li>
+                </ul>
+                Il deployment su dispositivi edge richiede ottimizzazioni specifiche per hardware con risorse limitate. Ecco come i vari framework supportano questo scenario.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Framework</th>
+                        <th>Soluzione per Edge</th>
+                        <th>Dispositivi supportati</th>
+                        <th>Vantaggi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>TensorFlow/Keras</td>
+                        <td>TensorFlow Lite</td>
+                        <td>Android, iOS, Raspberry Pi, microcontrollori (tramite TF Micro)</td>
+                        <td>Ampio supporto dispositivi, ottimizzazioni hardware, toolchain matura</td>
+                    </tr>
+                    <tr>
+                        <td>PyTorch</td>
+                        <td>PyTorch Mobile, TorchScript</td>
+                        <td>Android, iOS, dispositivi Linux embedded</td>
+                        <td>Facilità d'uso, preservazione del flusso di sviluppo PyTorch</td>
+                    </tr>
+                    <tr>
+                        <td>JAX</td>
+                        <td>Convertitori tramite XLA</td>
+                        <td>TPU Edge, dispositivi compatibili con XLA</td>
+                        <td>Ottimizzazioni a livello di compilazione, alte prestazioni su TPU</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="note-box">
+                <h4>Migliori pratiche per il deployment edge</h4>
+                <ul>
+                    <li>Combinare quantizzazione e pruning per massimizzare l'efficienza</li>
+                    <li>Considerare architetture progettate specificamente per mobile (MobileNet, EfficientNet)</li>
+                    <li>Testare su dispositivi target reali, non solo emulatori</li>
+                    <li>Monitorare l'utilizzo della batteria e la temperatura del dispositivo</li>
+                    <li>Implementare strategie per limitare l'esecuzione delle inferenze quando non necessarie</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="technique-box">
+            <h2>Post-Training Optimization (PTO)</h2>
+            <p>Le ottimizzazioni post-training sono tecniche che si applicano dopo l'addestramento senza richiedere riaddestramenti. Includono fusione dei layer, eliminazione dei batch norm e altre trasformazioni strutturali.</p>
+            
+            <div class="tech-comparison">
+                <div class="tech-card keras-tech">
+                    <h3>TensorFlow</h3>
+                    <p>TensorFlow offre TF-TRT (TensorRT) per l'ottimizzazione accelerata su GPU NVIDIA e varie ottimizzazioni tramite TFJS e TFLite.</p>
+                    <ul>
+                        <li>Fusione di layer consecutivi</li>
+                        <li>Ottimizzazione kernel</li>
+                        <li>Eliminazione operazioni ridondanti</li>
+                        <li>Pianificazione ottimizzata delle operazioni</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-card pytorch-tech">
+                    <h3>PyTorch</h3>
+                    <p>PyTorch utilizza TorchScript e motori di inferenza come ONNX Runtime o TensorRT.</p>
+                    <ul>
+                        <li>JIT (Just-In-Time) compilation</li>
+                        <li>Graph optimization</li>
+                        <li>Operator fusion</li>
+                        <li>Memory planning ottimizzato</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-card jax-tech">
+                    <h3>JAX</h3>
+                    <p>JAX sfrutta la compilazione XLA per ottimizzazioni avanzate a livello di compilazione.</p>
+                    <ul>
+                        <li>Fusione delle operazioni</li>
+                        <li>Specializzazione aritmetica</li>
+                        <li>Parallelizzazione automatica</li>
+                        <li>Ottimizzazione della memoria</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="conclusion-section">
+            <h2>Conclusioni</h2>
+            <p>L'ottimizzazione dei modelli è un passaggio essenziale per il deployment efficiente delle reti neurali. Ogni framework offre approcci differenti, ma con obiettivi comuni:</p>
+            <ul>
+                <li>TensorFlow/Keras eccelle nell'ecosistema completo per il deployment su diverse piattaforme, con TensorFlow Lite che rappresenta lo standard de facto per dispositivi mobili</li>
+                <li>PyTorch offre flessibilità e un flusso di lavoro coerente dal prototipo al deployment, con strumenti in rapida evoluzione</li>
+                <li>JAX fornisce ottimizzazioni di basso livello avanzate, particolarmente efficaci su hardware specializzato come TPU</li>
+            </ul>
+            
+            <p>Per risultati ottimali, è consigliabile combinare più tecniche di ottimizzazione, testare rigorosamente le prestazioni su hardware target e valutare attentamente i compromessi tra dimensione, velocità e accuratezza del modello.</p>
         </div>
         
         <a href="index.html" class="back-link">← Torna alla Home</a>
