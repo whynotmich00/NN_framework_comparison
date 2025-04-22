@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Sfondo -->
+  <rect width="800" height="500" fill="#f8f9fa" />
+  
+  <!-- Titolo -->
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#333">
+    Struttura del Sito Web - Confronto Librerie Reti Neurali
+  </text>
+  
+  <!-- Pagina Home -->
+  <rect x="300" y="70" width="200" height="80" rx="5" fill="#4285f4" />
+  <text x="400" y="110" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="white">
+    Home Page
+  </text>
+  <text x="400" y="130" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">
+    (Confronto generale)
+  </text>
+  
+  <!-- Linee di collegamento -->
+  <line x1="400" y1="150" x2="400" y2="180" stroke="#666" stroke-width="2" />
+  <line x1="400" y1="180" x2="150" y2="180" stroke="#666" stroke-width="2" />
+  <line x1="400" y1="180" x2="400" y2="180" stroke="#666" stroke-width="2" />
+  <line x1="400" y1="180" x2="650" y2="180" stroke="#666" stroke-width="2" />
+  <line x1="150" y1="180" x2="150" y2="210" stroke="#666" stroke-width="2" />
+  <line x1="400" y1="180" x2="400" y2="210" stroke="#666" stroke-width="2" />
+  <line x1="650" y1="180" x2="650" y2="210" stroke="#666" stroke-width="2" />
+  
+  <!-- Pagine Framework -->
+  <rect x="50" y="210" width="200" height="80" rx="5" fill="#ea4335" />
+  <text x="150" y="250" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="white">
+    Keras
+  </text>
+  <text x="150" y="270" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">
+    (come funziona)
+  </text>
+  
+  <rect x="300" y="210" width="200" height="80" rx="5" fill="#fbbc05" />
+  <text x="400" y="250" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="white">
+    PyTorch
+  </text>
+  <text x="400" y="270" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">
+    (come funziona)
+  </text>
+  
+  <rect x="550" y="210" width="200" height="80" rx="5" fill="#34a853" />
+  <text x="650" y="250" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="white">
+    JAX
+  </text>
+  <text x="650" y="270" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">
+    (come funziona)
+  </text>
+  
+  <!-- Sezioni nella Home -->
+  <rect x="200" y="340" width="400" height="40" rx="5" fill="#4285f4" opacity="0.7" />
+  <text x="400" y="365" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="white">
+    Confronto Caratteristiche
+  </text>
+  
+  <rect x="200" y="390" width="400" height="40" rx="5" fill="#4285f4" opacity="0.7" />
+  <text x="400" y="415" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="white">
+    Confronto Prestazioni e Velocità
+  </text>
+  
+  <!-- Linee collegamenti sezioni -->
+  <line x1="300" y1="110" x2="260" y2="110" stroke="#666" stroke-width="1" stroke-dasharray="5,5" />
+  <line x1="260" y1="110" x2="260" y2="360" stroke="#666" stroke-width="1" stroke-dasharray="5,5" />
+  <line x1="260" y1="360" x2="200" y2="360" stroke="#666" stroke-width="1" stroke-dasharray="5,5" />
+  
+  <line x1="260" y1="410" x2="200" y2="410" stroke="#666" stroke-width="1" stroke-dasharray="5,5" />
+</svg>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyTorch - Libreria per Reti Neurali</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>PyTorch</h1>
+                    <p>Framework flessibile con esecuzione dinamica per deep learning</p>
+                </div>
+                <nav class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="keras.html">Keras</a>
+                    <a href="pytorch.html" class="active">PyTorch</a>
+                    <a href="jax.html">JAX</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <a href="index.html" class="btn btn-back">← Torna alla Home</a>
+        
+        <!-- SEZIONE 1: Backend e Paradigma di Grafo Dinamico -->
+        <div class="content-section">
+            <h2>Il Backend di PyTorch e il Paradigma del Grafo Dinamico</h2>
+            
+            <p>PyTorch è una libreria di deep learning open source sviluppata principalmente da Facebook's AI Research lab (FAIR). A differenza di altri framework come TensorFlow (nella sua versione 1.x), PyTorch utilizza un paradigma di grafo dinamico (define-by-run) anziché un grafo statico (define-and-run).</p>
+            
+            <h3>Backend di PyTorch: C++ e CUDA</h3>
+            <p>PyTorch è costruito su un backend C++ ad alte prestazioni chiamato ATen, che a sua volta si basa su una libreria BLAS ottimizzata come MKL (Math Kernel Library) di Intel. Per l'accelerazione GPU, PyTorch sfrutta CUDA, una piattaforma di computing parallelo e un modello di programmazione sviluppato da NVIDIA.</p>
+            
+            <p>Il backend di PyTorch include:</p>
+            <ul>
+                <li><strong>LibTorch</strong>: il core C++ di PyTorch che gestisce tutte le operazioni tensoriali</li>
+                <li><strong>cuDNN</strong>: una libreria di NVIDIA per implementazioni ottimizzate di operazioni di deep learning su GPU</li>
+                <li><strong>ATen</strong>: un framework tensoriale che fornisce un'interfaccia tensor e operazioni matematiche</li>
+            </ul>
+            
+            <h3>Perché il Paradigma di Grafo Dinamico?</h3>
+            <p>PyTorch ha fatto una scelta esplicita di utilizzare un paradigma di grafo computazionale dinamico per diversi motivi chiave:</p>
+            
+            <ol>
+                <li><strong>Intuitivitа e Naturalezza</strong>: Con un grafo dinamico, il codice viene eseguito passo dopo passo, proprio come il normale codice Python. Questo rende più intuitivo il debugging e la comprensione del flusso del programma.</li>
+                <li><strong>Flessibilitа</strong>: I modelli possono cambiare comportamento dinamicamente durante l'esecuzione. Questo è essenziale per implementare facilmente modelli con flusso di controllo dipendente dai dati, come RNN con lunghezza variabile o reti con architetture condizionali.</li>
+                <li><strong>Debugging Semplificato</strong>: Poiché il codice viene eseguito in modo imperativo, è possibile utilizzare gli strumenti di debugging standard di Python come print, pdb o IDE.</li>
+                <li><strong>Ricerca e Prototipazione</strong>: La natura dinamica è particolarmente adatta alla ricerca, dove gli algoritmi e le architetture cambiano frequentemente ed è necessario sperimentare rapidamente.</li>
+            </ol>
+            
+            <h3>Come Funziona il Grafo Dinamico</h3>
+            <p>In PyTorch, il grafo computazionale viene costruito durante l'esecuzione (on-the-fly):</p>
+            <ol>
+                <li>Ogni operazione viene eseguita immediatamente quando viene chiamata</li>
+                <li>Durante l'esecuzione, PyTorch registra automaticamente le operazioni in un grafo per il calcolo del gradiente (autograd)</li>
+                <li>Questo grafo esiste solo per la passata forward corrente e viene ricreato per ogni nuova passata</li>
+            </ol>
+            
+            <p>Questo contrasta con l'approccio statico dove il grafo viene definito prima dell'esecuzione e poi eseguito ripetutamente. Il paradigma dinamico di PyTorch è più simile al modo in cui i programmatori Python pensano e lavorano normalmente.</p>
+        </div>
+        
+        <!-- SEZIONE 2: Esempio di Addestramento di una MLP su MNIST -->
+        <div class="content-section">
+            <h2>Addestramento di una Rete MLP su MNIST con PyTorch</h2>
+            
+            <p>In questa sezione, esaminiamo come implementare e addestrare una rete neurale multi-layer perceptron (MLP) classica sul dataset MNIST usando PyTorch.</p>
+            
+            <h3>1. Importazione delle Librerie e Configurazione</h3>
+            <div class="code-block">
+<pre>import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+# Definizione di iperparametri
+batch_size = 64
+learning_rate = 0.01
+epochs = 10
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Trasformazioni dei dati
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
+])</pre>
+            </div>
+            
+            <h3>2. Caricamento del Dataset MNIST</h3>
+            <div class="code-block">
+<pre># Caricamento del dataset di training
+train_dataset = datasets.MNIST('data', train=True, download=True, transform=transform)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+# Caricamento del dataset di test
+test_dataset = datasets.MNIST('data', train=False, transform=transform)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)</pre>
+            </div>
+            
+            <h3>3. Definizione dell'Architettura della Rete</h3>
+            <div class="code-block">
+<pre>class MLP(nn.Module):
+    def __init__(self):
+        super(MLP, self).__init__()
+        # Primo layer fully connected: 784 (28x28) → 512
+        self.fc1 = nn.Linear(28 * 28, 512)
+        # Secondo layer fully connected: 512 → 256
+        self.fc2 = nn.Linear(512, 256)
+        # Terzo layer fully connected: 256 → 10 (classi di output)
+        self.fc3 = nn.Linear(256, 10)
+        # Layer di dropout per regolarizzazione
+        self.dropout = nn.Dropout(0.2)
+    
+    def forward(self, x):
+        # Reshape dell'input in un vettore piatto
+        x = x.view(-1, 28 * 28)
+        # Primo layer con ReLU
+        x = F.relu(self.fc1(x))
+        # Dropout per prevenire overfitting
+        x = self.dropout(x)
+        # Secondo layer con ReLU
+        x = F.relu(self.fc2(x))
+        # Dropout
+        x = self.dropout(x)
+        # Layer di output (no softmax qui, è incluso nella loss function)
+        x = self.fc3(x)
+        return x
+
+# Inizializzazione del modello e spostamento sulla device
+model = MLP().to(device)
+
+# Definizione di loss function e optimizer
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</pre>
+            </div>
+            
+            <h3>4. Loop di Addestramento</h3>
+            <div class="code-block">
+<pre>def train(model, device, train_loader, optimizer, epoch):
+    # Imposta il modello in modalità training
+    model.train()
+    
+    for batch_idx, (data, target) in enumerate(train_loader):
+        # Sposta dati e target sul device (CPU/GPU)
+        data, target = data.to(device), target.to(device)
+        
+        # Azzera i gradienti precedenti
+        optimizer.zero_grad()
+        
+        # Forward pass: ottenimento delle previsioni
+        output = model(data)
+        
+        # Calcolo della loss
+        loss = criterion(output, target)
+        
+        # Backward pass: calcolo dei gradienti
+        loss.backward()
+        
+        # Aggiornamento dei pesi
+        optimizer.step()
+        
+        # Stampa dei progressi
+        if batch_idx % 100 == 0:
+            print(f'Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} '
+                  f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')</pre>
+            </div>
+            
+            <h3>5. Valutazione del Modello</h3>
+            <div class="code-block">
+<pre>def test(model, device, test_loader):
+    # Imposta il modello in modalità valutazione
+    model.eval()
+    test_loss = 0
+    correct = 0
+    
+    # Disabilita il calcolo del gradiente per la valutazione
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            
+            # Forward pass
+            output = model(data)
+            
+            # Somma la loss batch per batch
+            test_loss += criterion(output, target).item()
+            
+            # Ottieni l'indice della classe prevista
+            pred = output.argmax(dim=1, keepdim=True)
+            
+            # Confronta con la classe corretta e somma
+            correct += pred.eq(target.view_as(pred)).sum().item()
+    
+    # Calcola la loss media
+    test_loss /= len(test_loader.dataset)
+    
+    # Stampa i risultati
+    print(f'\nTest set: Average loss: {test_loss:.4f}, '
+          f'Accuracy: {correct}/{len(test_loader.dataset)} '
+          f'({100. * correct / len(test_loader.dataset):.2f}%)\n')</pre>
+            </div>
+            
+            <h3>6. Esecuzione dell'Addestramento</h3>
+            <div class="code-block">
+<pre># Loop principale di addestramento
+for epoch in range(1, epochs + 1):
+    train(model, device, train_loader, optimizer, epoch)
+    test(model, device, test_loader)
+
+# Salvataggio del modello addestrato
+torch.save(model.state_dict(), "mnist_mlp.pth")
+print("Modello salvato con successo!")</pre>
+            </div>
+            
+            <h3>Output Tipico dell'Addestramento</h3>
+            <div class="output-block">
+<pre>Epoch: 1 [0/60000 (0%)]	Loss: 2.300037
+Epoch: 1 [6400/60000 (11%)]	Loss: 0.752236
+Epoch: 1 [12800/60000 (21%)]	Loss: 0.405645
+Epoch: 1 [19200/60000 (32%)]	Loss: 0.333895
+Epoch: 1 [25600/60000 (43%)]	Loss: 0.266329
+Epoch: 1 [32000/60000 (53%)]	Loss: 0.286673
+Epoch: 1 [38400/60000 (64%)]	Loss: 0.247896
+Epoch: 1 [44800/60000 (75%)]	Loss: 0.198673
+Epoch: 1 [51200/60000 (85%)]	Loss: 0.166872
+Epoch: 1 [57600/60000 (96%)]	Loss: 0.183675
+
+Test set: Average loss: 0.0064, Accuracy: 9712/10000 (97.12%)
+
+Epoch: 2 [0/60000 (0%)]	Loss: 0.160392
+...
+Epoch: 10 [57600/60000 (96%)]	Loss: 0.030026
+
+Test set: Average loss: 0.0019, Accuracy: 9835/10000 (98.35%)
+
+Modello salvato con successo!</pre>
+            </div>
+            
+            <p>Questa implementazione mostra la potenza e la semplicità di PyTorch. Il paradigma di grafo dinamico consente di scrivere codice molto naturale e Python-like, rendendo il processo di implementazione e debug di reti neurali molto più intuitivo rispetto a framework con grafi statici.</p>
+        </div>
+        
+        <!-- SEZIONE 3: Segnaposto per la sezione sulla velocità di PyTorch -->
+        <div class="content-section">
+            <h2>Velocità e Prestazioni di PyTorch</h2>
+            <p>Questa sezione verrà sviluppata successivamente. Tratterà la velocità di PyTorch, le ottimizzazioni e i confronti di performance con altri framework.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
+        </div>
+    </footer>
+</body>
+</html>

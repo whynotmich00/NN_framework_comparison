@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confronto Librerie per Reti Neurali</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Confronto Librerie per Reti Neurali</h1>
+            <p>Esplora e confronta le principali librerie per l'allenamento e lo sviluppo di reti neurali: Keras, PyTorch e JAX</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header keras-header">
+                    <h2>Keras</h2>
+                </div>
+                <div class="card-body">
+                    <p>Un'API di alto livello per reti neurali, semplice da usare e intuitiva. Perfetta per principianti e prototipazione rapida.</p>
+                    <a href="keras.html" class="btn keras-btn">Esplora Keras</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header pytorch-header">
+                    <h2>PyTorch</h2>
+                </div>
+                <div class="card-body">
+                    <p>Una libreria flessibile con esecuzione dinamica dei grafi computazionali. Popolare nella ricerca per la sua facilità di debugging.</p>
+                    <a href="pytorch.html" class="btn pytorch-btn">Esplora PyTorch</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header jax-header">
+                    <h2>JAX</h2>
+                </div>
+                <div class="card-body">
+                    <p>Un framework che combina NumPy con differenziazione automatica e accelerazione hardware. Ottimizzato per la ricerca ad alte prestazioni.</p>
+                    <a href="jax.html" class="btn jax-btn">Esplora JAX</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="comparison-section">
+            <h2>Confronto Rapido</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Caratteristica</th>
+                        <th>Keras</th>
+                        <th>PyTorch</th>
+                        <th>JAX</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sviluppatore</td>
+                        <td>François Chollet (ora parte di TensorFlow)</td>
+                        <td>Facebook AI Research (FAIR)</td>
+                        <td>Google</td>
+                    </tr>
+                    <tr>
+                        <td>Curva di apprendimento</td>
+                        <td>Molto bassa</td>
+                        <td>Bassa</td>
+                        <td>Moderata</td>
+                    </tr>
+                    <tr>
+                        <td>Paradigma</td>
+                        <td>Alto livello, API intuitiva</td>
+                        <td>Grafo dinamico (eager execution)</td>
+                        <td>Funzionale, trasformazione di funzioni</td>
+                    </tr>
+                    <tr>
+                        <td>Ideale per</td>
+                        <td>Principianti, prototipazione rapida</td>
+                        <td>Ricerca, NLP, computer vision</td>
+                        <td>Ricerca avanzata, calcolo parallelo e distribuito</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Nuova sezione per il confronto sulla velocità -->
+        <div class="performance-section">
+            <h2>Confronto Prestazioni e Velocità</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parametro</th>
+                        <th>Keras</th>
+                        <th>PyTorch</th>
+                        <th>JAX</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Velocità di Training (GPU)</td>
+                        <td>Buona</td>
+                        <td>Molto buona</td>
+                        <td>Eccellente</td>
+                    </tr>
+                    <tr>
+                        <td>Velocità di Inferenza</td>
+                        <td>Moderata</td>
+                        <td>Buona</td>
+                        <td>Ottima</td>
+                    </tr>
+                    <tr>
+                        <td>Efficienza memoria</td>
+                        <td>Moderata</td>
+                        <td>Buona</td>
+                        <td>Eccellente</td>
+                    </tr>
+                    <tr>
+                        <td>Tempo compilazione</td>
+                        <td>Rapido</td>
+                        <td>Immediato</td>
+                        <td>Lento (JIT)</td>
+                    </tr>
+                    <tr>
+                        <td>Scalabilità</td>
+                        <td>Buona</td>
+                        <td>Molto buona</td>
+                        <td>Eccellente</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="performance-notes">
+                <p><strong>Note sulle prestazioni:</strong> JAX eccelle nelle operazioni parallele e scalabili grazie all'architettura XLA, mentre PyTorch offre un buon equilibrio tra velocità e flessibilità. Keras, sebbene leggermente più lento, rimane un'ottima scelta per progetti meno complessi dove la semplicità è prioritaria rispetto alle prestazioni pure.</p>
+            </div>
+        </div>
+        
+        <!-- Nuova sezione per l'immagine della struttura del sito -->
+        <div class="site-structure-section">
+            <h2>Struttura del Sito</h2>
+            <div class="site-map-container">
+                <img src="images/site-structure.svg" alt="Struttura del sito web" class="site-map-image">
+                <p class="image-caption">Schema della struttura e navigazione del sito web</p>
+            </div>
+            <div class="structure-description">
+                <p>Il sito è organizzato con una pagina principale di confronto (questa) e pagine dedicate per ciascun framework, accessibili dai pulsanti "Esplora". Ogni pagina dedicata contiene esempi di codice, casi d'uso e risorse aggiuntive specifiche per il framework.</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,249 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #34495e;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+header {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    color: white;
+    text-align: center;
+    padding: 60px 0;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 700px;
+    margin: 20px auto 0;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 320px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 2rem;
+}
+
+.keras-header {
+    background: linear-gradient(135deg, #D50000, #FF1744);
+}
+
+.pytorch-header {
+    background: linear-gradient(135deg, #FB8C00, #FFAB00);
+}
+
+.jax-header {
+    background: linear-gradient(135deg, #00897B, #00BFA5);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-body p {
+    margin-top: 0;
+    height: 100px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    width: 100%;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.keras-btn {
+    background-color: #D50000;
+}
+
+.keras-btn:hover {
+    background-color: #B71C1C;
+}
+
+.pytorch-btn {
+    background-color: #FB8C00;
+}
+
+.pytorch-btn:hover {
+    background-color: #EF6C00;
+}
+
+.jax-btn {
+    background-color: #00897B;
+}
+
+.jax-btn:hover {
+    background-color: #00695C;
+}
+
+.comparison-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 50px;
+    box-shadow: var(--shadow);
+}
+
+.comparison-section h2 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+footer {
+    background-color: var(--secondary-color);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .cards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .card {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+/* Stile per i blocchi di codice Python */
+.code-block {
+    background-color: #f6f8fa;
+    padding: 15px;
+    border-left: 4px solid #3776ab; /* Colore blu di Python */
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: auto;
+    margin: 20px 0;
+    position: relative;
+}
+
+/* Aggiunta di un'etichetta "Python" in alto al blocco di codice */
+.code-block::before {
+    content: "Python";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #3776ab;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-bottom-left-radius: 3px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Stile per i blocchi di output */
+.output-block {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-left: 4px solid #27ae60; /* Colore verde per l'output */
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: auto;
+    margin: 20px 0;
+    position: relative;
+}
+
+/* Aggiunta di un'etichetta "Output" in alto al blocco di output */
+.output-block::before {
+    content: "Output";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #27ae60;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-bottom-left-radius: 3px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
