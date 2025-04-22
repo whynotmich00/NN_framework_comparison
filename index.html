@@ -7,6 +7,28 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        .performance-btn, .parallelism-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .performance-btn:hover, .parallelism-btn:hover {
+            background-color: #0056b3;
+        }
+        .parallelism-btn {
+            background-color: #28a745;
+        }
+        .parallelism-btn:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -17,6 +39,19 @@
     </header>
     
     <div class="container">
+        <!-- Sezione per l'immagine della struttura del sito (spostata all'inizio) -->
+        <div class="site-structure-section">
+            <h2>Struttura del Sito</h2>
+            <div class="site-map-container">
+                <img src="images/site-structure.svg" alt="Struttura del sito web" class="site-map-image">
+                <p class="image-caption">Schema della struttura e navigazione del sito web</p>
+            </div>
+            <div class="structure-description">
+                <p>Il sito è organizzato con una pagina principale di confronto (questa) e pagine dedicate per ciascun framework, accessibili dai pulsanti "Esplora". Ogni pagina dedicata contiene esempi di codice, casi d'uso e risorse aggiuntive specifiche per il framework.</p>
+            </div>
+        </div>
+        
+        <!-- Cards dei framework -->
         <div class="cards-container">
             <div class="card">
                 <div class="card-header keras-header">
@@ -89,7 +124,40 @@
             </table>
         </div>
         
-        <!-- Nuova sezione per il confronto sulla velocità -->
+        <!-- Nuove cards di approfondimento -->
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header performance-header">
+                    <h2>Prestazioni</h2>
+                </div>
+                <div class="card-body">
+                    <p>Confronto dettagliato delle prestazioni dei framework su diverse architetture neurali. Analisi benchmarking su hardware NVIDIA A40.</p>
+                    <a href="prestazioni.html" class="btn performance-btn">Analisi Prestazioni</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header parallelism-header">
+                    <h2>Parallelizzazione</h2>
+                </div>
+                <div class="card-body">
+                    <p>Strategie di parallelizzazione per i diversi framework. Confronto di approcci di data parallelism, model parallelism e distributed training.</p>
+                    <a href="parallelizzazione.html" class="btn parallelism-btn">Esplora Parallelizzazione</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header optimization-header">
+                    <h2>Ottimizzazione</h2>
+                </div>
+                <div class="card-body">
+                    <p>Tecniche di ottimizzazione dei modelli per ciascun framework. Quantizzazione, pruning e ottimizzazione per il deployment.</p>
+                    <a href="ottimizzazione.html" class="btn optimization-btn">Esplora Ottimizzazione</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sezione prestazioni (per riferimento nella pagina principale) -->
         <div class="performance-section">
             <h2>Confronto Prestazioni e Velocità</h2>
             <table>
@@ -136,18 +204,6 @@
             </table>
             <div class="performance-notes">
                 <p><strong>Note sulle prestazioni:</strong> JAX eccelle nelle operazioni parallele e scalabili grazie all'architettura XLA, mentre PyTorch offre un buon equilibrio tra velocità e flessibilità. Keras, sebbene leggermente più lento, rimane un'ottima scelta per progetti meno complessi dove la semplicità è prioritaria rispetto alle prestazioni pure.</p>
-            </div>
-        </div>
-        
-        <!-- Nuova sezione per l'immagine della struttura del sito -->
-        <div class="site-structure-section">
-            <h2>Struttura del Sito</h2>
-            <div class="site-map-container">
-                <img src="images/site-structure.svg" alt="Struttura del sito web" class="site-map-image">
-                <p class="image-caption">Schema della struttura e navigazione del sito web</p>
-            </div>
-            <div class="structure-description">
-                <p>Il sito è organizzato con una pagina principale di confronto (questa) e pagine dedicate per ciascun framework, accessibili dai pulsanti "Esplora". Ogni pagina dedicata contiene esempi di codice, casi d'uso e risorse aggiuntive specifiche per il framework.</p>
             </div>
         </div>
     </div>
