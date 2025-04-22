@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAX - Libreria per Reti Neurali</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <title>Addestramento Rete Neurale con JAX</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -13,89 +13,17 @@
         <div class="container">
             <div class="header-content">
                 <div>
-                    <h1>JAX</h1>
-                    <p>Framework per differenziazione automatica e calcolo ad alte prestazioni</p>
+                    <h1>Addestramento con JAX</h1>
+                    <p>Tutorial: Implementazione e addestramento di una MLP sul dataset MNIST</p>
                 </div>
-                <nav class="nav-links">
-                    <a href="index.html">Home</a>
-                    <a href="keras.html">Keras</a>
-                    <a href="pytorch.html">PyTorch</a>
-                    <a href="jax.html" class="active">JAX</a>
-                </nav>
             </div>
         </div>
     </header>
     
     <div class="container">
-        <a href="index.html" class="btn btn-back">← Torna alla Home</a>
+        <a href="jax.html" class="btn btn-back">← Torna a JAX</a>
         
-        <!-- SEZIONE 1: Backend e Architettura di JAX -->
-        <div class="content-section">
-            <h2>Il Backend di JAX e la sua Architettura</h2>
-            
-            <p>JAX è un framework di calcolo numerico sviluppato da Google Research che combina NumPy con la differenziazione automatica e l'accelerazione hardware. Il nome "JAX" sta per "Just After eXecution" (subito dopo l'esecuzione), un riferimento al suo approccio di tracciamento e compilazione del codice.</p>
-            
-            <h3>Architettura e Component di JAX</h3>
-            <p>JAX è costruito su una serie di componenti che lavorano insieme per fornire le sue funzionalità principali:</p>
-            
-            <ol>
-                <li><strong>XLA (Accelerated Linear Algebra)</strong>: Un compilatore e runtime specializzato per algebra lineare accelerata, sviluppato inizialmente per TensorFlow. XLA ottimizza i calcoli per esecuzione su hardware specifico (CPU, GPU, TPU).</li>
-                
-                <li><strong>Tracciamento e trasformazione di funzioni</strong>: JAX trasforma funzioni Python in rappresentazioni che possono essere analizzate, ottimizzate e compilate.</li>
-                
-                <li><strong>Differenziazione automatica</strong>: JAX implementa sia la differenziazione in avanti che all'indietro, permettendo di calcolare gradienti esatti di funzioni.</li>
-                
-                <li><strong>Interfaccia NumPy</strong>: JAX fornisce un'API familiare che imita NumPy, rendendo più facile la transizione per chi già conosce questa libreria.</li>
-            </ol>
-            
-            <h3>Come Funziona JAX "Under the Hood"</h3>
-            <p>JAX opera attraverso un processo multifase che permette di ottimizzare e accelerare il codice Python:</p>
-            
-            <h4>1. Tracciamento e Rappresentazione Funzionale</h4>
-            <p>Quando si applica una trasformazione JAX (come <code>jit</code>, <code>grad</code>, o <code>vmap</code>) a una funzione, JAX esegue queste operazioni:</p>
-            <ul>
-                <li>Traccia la funzione con valori concreti per capire quali operazioni vengono eseguite</li>
-                <li>Costruisce un grafo computazionale chiamato "jaxpr" (JAX expression)</li>
-                <li>Questa rappresentazione cattura l'essenza matematica della funzione, indipendentemente dagli aspetti specifici di Python</li>
-            </ul>
-            
-            <h4>2. Trasformazione</h4>
-            <p>Il jaxpr può essere trasformato in vari modi:</p>
-            <ul>
-                <li><strong>grad</strong>: Calcola i gradienti di una funzione rispetto ai suoi input</li>
-                <li><strong>vmap</strong>: Vettorizza una funzione lungo una dimensione aggiuntiva</li>
-                <li><strong>pmap</strong>: Parallelizza una funzione su dispositivi multipli</li>
-                <li><strong>jit</strong>: Compila una funzione per esecuzione ottimizzata</li>
-            </ul>
-            
-            <h4>3. Compilazione con XLA</h4>
-            <p>Il jaxpr trasformato viene compilato tramite XLA:</p>
-            <ul>
-                <li>XLA analizza il grafo computazionale e applica ottimizzazioni come fusione delle operazioni e riallocazione della memoria</li>
-                <li>Genera codice specifico per l'hardware di destinazione (CPU, GPU, o TPU)</li>
-                <li>Il codice compilato viene messo in cache per riutilizzarlo con input di forma simile</li>
-            </ul>
-            
-            <h4>4. Esecuzione</h4>
-            <p>Quando la funzione viene chiamata con input concreti:</p>
-            <ul>
-                <li>JAX utilizza il codice compilato se disponibile in cache</li>
-                <li>In caso contrario, traccia e compila nuovamente</li>
-                <li>I risultati vengono restituiti come array JAX (simili a ndarray di NumPy, ma immutabili)</li>
-            </ul>
-            
-            <h3>Principi Funzionali e Immutabilità</h3>
-            <p>JAX adotta una filosofia di programmazione funzionale che ha profondi effetti sul suo design:</p>
-            <ul>
-                <li><strong>Immutabilità</strong>: Gli array JAX sono immutabili, il che significa che le operazioni creano nuovi array invece di modificare quelli esistenti</li>
-                <li><strong>Funzioni pure</strong>: JAX funziona meglio con funzioni pure (senza effetti collaterali), facilitando l'ottimizzazione e la parallelizzazione</li>
-                <li><strong>Tracciabilità</strong>: Le funzioni devono essere tracciabili da JAX, il che pone alcune restrizioni sul codice Python che può essere usato</li>
-            </ul>
-            
-            <p>Questa architettura dà a JAX diverse caratteristiche uniche rispetto ad altri framework di deep learning. La sua capacità di trasformare le funzioni in modo componibile (applicando più trasformazioni in sequenza) e la sua integrazione con l'ecosistema NumPy lo rendono particolarmente adatto per la ricerca e per compiti che richiedono alta prestazione computazionale.</p>
-        </div>
-        
-        <!-- SEZIONE 2: Esempio di Addestramento di una MLP su MNIST -->
+        <!-- CONTENUTO: Addestramento di una MLP su MNIST -->
         <div class="content-section">
             <h2>Addestramento di una Rete MLP su MNIST con JAX</h2>
             
@@ -382,12 +310,6 @@ plt.show()</pre>
             </div>
             
             <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali. La caratteristica principale è l'uso di trasformazioni funzionali come <code>jit</code> per compilare e ottimizzare le funzioni, e la chiarezza con cui viene definito il flusso di addestramento passo-passo. La filosofia funzionale di JAX è evidente nel modo in cui lo stato del modello viene gestito in modo esplicito e immutabile.</p>
-        </div>
-        
-        <!-- SEZIONE 3: Segnaposto per la sezione futura -->
-        <div class="content-section">
-            <h2>Accelerazione Hardware e Parallelizzazione con JAX</h2>
-            <p>Questa sezione verrà sviluppata successivamente. Tratterà le capacità di JAX per l'accelerazione hardware, la parallelizzazione su più dispositivi e le tecniche avanzate di ottimizzazione delle prestazioni.</p>
         </div>
     </div>
     

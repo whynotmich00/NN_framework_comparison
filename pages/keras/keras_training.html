@@ -3,73 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keras - Libreria per Reti Neurali</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <title>Addestramento Rete Neurale con Keras</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <style>
+        .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: block;
+            width: auto;
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .btn-back, .btn-tutorial {
+            width: auto;
+            max-width: 350px;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-content">
                 <div>
-                    <h1>Keras</h1>
-                    <p>API di alto livello per reti neurali, semplice da usare e potente</p>
+                    <h1>Addestramento con Keras</h1>
+                    <p>Tutorial: Implementazione e addestramento di una MLP sul dataset MNIST</p>
                 </div>
-                <nav class="nav-links">
-                    <a href="index.html">Home</a>
-                    <a href="keras.html" class="active">Keras</a>
-                    <a href="pytorch.html">PyTorch</a>
-                    <a href="jax.html">JAX</a>
-                </nav>
             </div>
         </div>
     </header>
     
     <div class="container">
-        <a href="index.html" class="btn btn-back">← Torna alla Home</a>
+        <a href="keras.html" class="btn btn-back">← Torna a Keras</a>
         
-        <!-- SEZIONE 1: Backend e Architettura di Keras -->
-        <div class="content-section">
-            <h2>Il Backend di Keras e la sua Architettura</h2>
-            
-            <p>Keras è un'API di alto livello per reti neurali, sviluppata con l'obiettivo di consentire una rapida sperimentazione e prototipazione. Originariamente creata da François Chollet nel 2015, è diventata una delle interfacce più popolari per lo sviluppo di modelli di deep learning.</p>
-            
-            <h3>L'Architettura Backend di Keras</h3>
-            <p>Una caratteristica fondamentale dell'architettura di Keras è la sua capacità di funzionare su diversi backend. Originariamente, Keras supportava TensorFlow, Theano e CNTK (Microsoft Cognitive Toolkit) come backend. A partire dal 2019, con il rilascio di TensorFlow 2.0, Keras è diventata l'API ufficiale di alto livello di TensorFlow, pur mantenendo la capacità di essere utilizzata come interfaccia indipendente.</p>
-            
-            <p>L'architettura di Keras include:</p>
-            <ul>
-                <li><strong>Layer API</strong>: fornisce componenti modulari per costruire reti neurali</li>
-                <li><strong>Model API</strong>: permette di comporre i layer in modelli più complessi</li>
-                <li><strong>Callbacks</strong>: meccanismi per monitorare e controllare il processo di addestramento</li>
-                <li><strong>Preprocessing</strong>: strumenti per manipolare e preparare i dati</li>
-                <li><strong>Integration layer</strong>: connette l'API ad alto livello con il backend scelto</li>
-            </ul>
-            
-            <h3>Perché un'API di Alto Livello?</h3>
-            <p>Keras è stata progettata con un focus esplicito sull'esperienza dell'utente e sulla facilità d'uso. Le motivazioni principali dietro questa scelta di design includono:</p>
-            
-            <ol>
-                <li><strong>Accessibilità</strong>: Rendere le tecniche di deep learning accessibili a un pubblico più ampio, inclusi ricercatori, studenti e sviluppatori con limitata esperienza in machine learning.</li>
-                <li><strong>Produttività</strong>: Permettere una rapida sperimentazione e iterazione, riducendo il tempo necessario per implementare nuove idee.</li>
-                <li><strong>Modularità</strong>: Promuovere un approccio di sviluppo componibile, dove modelli complessi possono essere costruiti assemblando blocchi più semplici.</li>
-                <li><strong>Estensibilità</strong>: Consentire agli utenti avanzati di creare nuovi componenti personalizzati mantenendo la semplicità d'uso.</li>
-            </ol>
-            
-            <h3>Come Funziona l'Astrazione di Alto Livello</h3>
-            <p>L'approccio di Keras all'astrazione funziona su diversi livelli:</p>
-            <ol>
-                <li>A livello più alto, Keras offre API basate su modelli (come Sequential o Functional API) che nascondono molti dettagli tecnici</li>
-                <li>I layer standard (Dense, Conv2D, LSTM, ecc.) incapsulano operazioni matematiche complesse</li>
-                <li>Gli ottimizzatori gestiscono automaticamente gli aggiornamenti dei parametri</li>
-                <li>Il livello di backend traduce queste operazioni di alto livello in istruzioni specifiche per il motore di calcolo sottostante (come TensorFlow)</li>
-            </ol>
-            
-            <p>Questo approccio consente a Keras di mantenere una sintassi pulita e concisa, rendendo il codice più leggibile e manutenibile, pur sfruttando la potenza e l'efficienza dei backend ottimizzati per le prestazioni.</p>
-        </div>
-        
-        <!-- SEZIONE 2: Esempio di Addestramento di una MLP su MNIST -->
+        <!-- CONTENUTO: Addestramento di una MLP su MNIST -->
         <div class="content-section">
             <h2>Addestramento di una Rete MLP su MNIST con Keras</h2>
             
@@ -77,7 +49,7 @@
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
             <div class="code-block">
-<pre>import tensorflow as tf
+<pre><code class="language-python">import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, models
 import numpy as np
@@ -90,12 +62,12 @@ epochs = 10
 
 # Impostazioni del formato per l'input
 img_rows, img_cols = 28, 28
-input_shape = (img_rows, img_cols, 1)</pre>
+input_shape = (img_rows, img_cols, 1)</code></pre>
             </div>
             
             <h3>2. Caricamento e Preparazione del Dataset MNIST</h3>
             <div class="code-block">
-<pre># Caricamento del dataset integrato di Keras
+<pre><code class="language-python"># Caricamento del dataset integrato di Keras
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
 # Reshaping dei dati per adattarli al formato dell'input
@@ -112,12 +84,12 @@ print(x_test.shape[0], 'test samples')
 
 # Conversione delle etichette in categorie one-hot
 y_train = keras.utils.to_categorical(y_train, num_classes)
-y_test = keras.utils.to_categorical(y_test, num_classes)</pre>
+y_test = keras.utils.to_categorical(y_test, num_classes)</code></pre>
             </div>
             
             <h3>3. Definizione dell'Architettura della Rete</h3>
             <div class="code-block">
-<pre># Utilizzo dell'API Sequenziale di Keras
+<pre><code class="language-python"># Utilizzo dell'API Sequenziale di Keras
 model = keras.Sequential([
     # Flatten dell'input (trasforma le immagini 28x28 in vettori 784)
     layers.Flatten(input_shape=input_shape),
@@ -135,11 +107,11 @@ model = keras.Sequential([
 ])
 
 # Riepilogo dell'architettura del modello
-model.summary()</pre>
+model.summary()</code></pre>
             </div>
             
             <div class="output-block">
-<pre>Model: "sequential"
+<pre><code class="language-output">Model: "sequential"
 _________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
@@ -158,22 +130,22 @@ dense_2 (Dense)              (None, 10)                2,570
 Total params: 535,818
 Trainable params: 535,818
 Non-trainable params: 0
-_________________________________________________________________</pre>
+_________________________________________________________________</code></pre>
             </div>
             
             <h3>4. Compilazione del Modello</h3>
             <div class="code-block">
-<pre># Configurazione del processo di ottimizzazione
+<pre><code class="language-python"># Configurazione del processo di ottimizzazione
 model.compile(
     loss='categorical_crossentropy',  # Funzione di loss per classificazione multi-classe
     optimizer=keras.optimizers.Adam(),  # Ottimizzatore Adam con parametri default
     metrics=['accuracy']  # Monitoriamo l'accuratezza durante l'addestramento
-)</pre>
+)</code></pre>
             </div>
             
             <h3>5. Definizione di Callback e Addestramento</h3>
             <div class="code-block">
-<pre># Definizione di callback per monitorare e controllare l'addestramento
+<pre><code class="language-python"># Definizione di callback per monitorare e controllare l'addestramento
 callbacks = [
     # Early stopping per interrompere l'addestramento quando non c'è miglioramento
     keras.callbacks.EarlyStopping(
@@ -206,20 +178,20 @@ history = model.fit(
     verbose=1,
     validation_split=0.1,  # 10% dei dati di training usati per validazione
     callbacks=callbacks
-)</pre>
+)</code></pre>
             </div>
             
             <h3>6. Valutazione del Modello</h3>
             <div class="code-block">
-<pre># Valutazione sul test set
+<pre><code class="language-python"># Valutazione sul test set
 score = model.evaluate(x_test, y_test, verbose=0)
 print(f'Test loss: {score[0]:.4f}')
-print(f'Test accuracy: {score[1]:.4f}')</pre>
+print(f'Test accuracy: {score[1]:.4f}')</code></pre>
             </div>
             
             <h3>7. Visualizzazione dei Risultati</h3>
             <div class="code-block">
-<pre># Estrazione della storia dell'addestramento
+<pre><code class="language-python"># Estrazione della storia dell'addestramento
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
 loss = history.history['loss']
@@ -249,12 +221,12 @@ plt.ylabel('Loss')
 
 plt.tight_layout()
 plt.savefig('keras_mnist_history.png')
-plt.show()</pre>
+plt.show()</code></pre>
             </div>
             
             <h3>Output Tipico dell'Addestramento</h3>
             <div class="output-block">
-<pre>x_train shape: (60000, 28, 28, 1)
+<pre><code class="language-output">x_train shape: (60000, 28, 28, 1)
 60000 train samples
 10000 test samples
 
@@ -273,16 +245,10 @@ Epoch 00005: early stopping
 Epoch 00005: val_accuracy improved from 0.98430 to 0.98517, saving model to best_mnist_model.h5
 
 Test loss: 0.0394
-Test accuracy: 0.9876</pre>
+Test accuracy: 0.9876</code></pre>
             </div>
             
             <p>Questo esempio dimostra la semplicità e la chiarezza dell'API Keras. Con poche righe di codice, siamo in grado di costruire, addestrare e valutare una rete neurale complessa. La struttura modulare e l'API ad alto livello rendono il processo intuitivo, pur mantenendo potenza e flessibilità.</p>
-        </div>
-        
-        <!-- SEZIONE 3: Segnaposto per la sezione futura -->
-        <div class="content-section">
-            <h2>Flessibilità e Estensioni di Keras</h2>
-            <p>Questa sezione verrà sviluppata successivamente. Tratterà la flessibilità di Keras, le sue estensioni, l'integrazione con altri framework e le funzionalità avanzate.</p>
         </div>
     </div>
     

@@ -101,16 +101,19 @@ header p {
 }
 
 .btn {
-    display: inline-block;
+    display: block;                        /* Un bottone per riga */
     background-color: var(--primary-color);
     color: white;
     text-decoration: none;
-    padding: 10px 20px;
+    padding: 8px 15px;
     border-radius: 5px;
     font-weight: bold;
     transition: background-color 0.3s ease;
     text-align: center;
-    width: 100%;
+    width: auto;                           /* Larghezza basata sul contenuto */
+    max-width: 350px;                      /* Larghezza massima */
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 .btn:hover {
@@ -400,4 +403,35 @@ pre {
 .parallelism-header,
 .optimization-header {
     height: 220px;  /* Aumentiamo l'altezza per le card di approfondimento */
+}
+
+.btn-back, .btn-tutorial {
+    width: auto;
+    max-width: 350px;
+}
+
+.code-block {
+    margin: 20px 0;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.code-block::before {
+    content: "Python";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #3776ab;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-bottom-left-radius: 3px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 10;
+}
+
+.code-block pre {
+    margin: 0;
+    border-radius: 0;
 }
