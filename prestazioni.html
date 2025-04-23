@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="../../js/main.js"></script>
 
     <style>
     .tab {
@@ -46,6 +45,33 @@
       padding: 10px;
       border-radius: 5px;
       overflow-x: auto;
+    }
+    .tabs {
+    display: flex;
+    flex-direction: row; /* Questo assicura che i tab siano in orizzontale */
+    margin-bottom: 0;
+    border-bottom: 1px solid #ddd;
+    }
+
+    .tab-content {
+    position: relative; /* Necessario per posizionare il pulsante copia */
+    }
+
+    .copy-button {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    padding: 5px 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 10; /* Assicura che il pulsante sia sopra il codice */
+    }
+
+    .copy-button:hover {
+    background: #45a049;
     }
     </style>
 </head>
@@ -131,8 +157,7 @@
                 </div>
                 
                 <div id="keras" class="tab-content active">
-                    <pre><code class="language-python">
-import tensorflow as tf
+                    <pre><code class="language-python">import tensorflow as tf
 from tensorflow import keras
 import time
 
@@ -224,8 +249,7 @@ print(f"Accuratezza sul test set: {test_acc:.4f}")
                 </div>
                 
                 <div id="pytorch" class="tab-content">
-                    <pre><code class="language-python">
-import torch
+                    <pre><code class="language-python">import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision
@@ -383,8 +407,7 @@ inference_time, accuracy = test_model(model, testloader)
             </div>
 
             <div id="jax" class="tab-content">
-            <pre><code class="language-python">
-import jax
+            <pre><code class="language-python">import jax
 import jax.numpy as jnp
 import jax.random as jrn
 import jax.tree_util as jtu
@@ -704,40 +727,5 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
             <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
         </div>
     </footer>
+    <script src="js/main.js"></script>
     
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Aggiungi event listener a ogni tab
-        tabs.forEach(tab => {
-          tab.addEventListener('click', function() {
-            // Rimuovi la classe "active" da tutte le tab e i contenuti
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            // Aggiungi la classe "active" alla tab cliccata
-            this.classList.add('active');
-            
-            // Trova e attiva il contenuto corrispondente
-            const tabId = this.getAttribute('data-tab');
-            const activeContent = document.getElementById(tabId);
-            activeContent.classList.add('active');
-            
-            // Assicurati che il codice venga evidenziato da Prism.js
-            if (window.Prism) {
-              Prism.highlightElement(activeContent.querySelector('code'));
-            }
-          });
-        });
-        
-        // Attiva la prima tab e il suo contenuto all'avvio
-        if (tabs.length > 0 && !document.querySelector('.tab.active')) {
-          tabs[0].classList.add('active');
-          if (tabContents.length > 0) {
-            tabContents[0].classList.add('active');
-          }
-        }
-      });
-    </script>
