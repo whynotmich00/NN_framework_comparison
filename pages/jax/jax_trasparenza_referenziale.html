@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trasparenza Referenziale</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .highlight {
+            background-color: #ffffd0;
+            padding: 2px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .example {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+        .definition {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .advantages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .advantage-card {
+            background-color: #f8f9fa;
+            border-left: 3px solid #3498db;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trasparenza Referenziale</h1>
+        
+        <div class="definition">
+            <p>La trasparenza referenziale è un concetto fondamentale nella programmazione funzionale che può essere spiegato così:</p>
+            <p><strong>Una funzione è referenzialmente trasparente se, per un determinato input, può essere sostituita con il suo valore di output senza alterare il comportamento del programma.</strong></p>
+        </div>
+        
+        <p>In termini più semplici:</p>
+        <ul>
+            <li>Se chiami una funzione più volte con lo stesso input, otterrai sempre lo stesso risultato</li>
+            <li>Puoi sostituire la chiamata di funzione con il suo risultato ovunque nel codice</li>
+        </ul>
+        
+        <h2>Esempio pratico</h2>
+        
+        <div class="example">
+            <p>Funzione referenzialmente trasparente:</p>
+            <pre><code>
+# Funzione referenzialmente trasparente
+def add(a, b):
+    return a + b
+
+x = add(2, 3)  # x = 5
+y = add(2, 3)  # y = 5
+
+# Possiamo sostituire add(2, 3) con 5 ovunque senza cambiare il comportamento
+            </code></pre>
+        </div>
+        
+        <p>Confrontiamola con una funzione non referenzialmente trasparente:</p>
+        
+        <div class="example">
+            <pre><code>
+counter = 0
+
+# Funzione NON referenzialmente trasparente
+def increment():
+    global counter
+    counter += 1
+    return counter
+
+a = increment()  # a = 1
+b = increment()  # b = 2
+
+# Non possiamo sostituire increment() con il suo valore perché cambia ogni volta
+            </code></pre>
+        </div>
+        
+        <h2>Vantaggi della trasparenza referenziale</h2>
+        
+        <div class="advantages">
+            <div class="advantage-card">
+                <h3>Ragionamento più semplice</h3>
+                <p>Possiamo analizzare parti di codice isolate senza preoccuparci dello stato globale</p>
+            </div>
+            
+            <div class="advantage-card">
+                <h3>Memoizzazione</h3>
+                <p>I risultati possono essere memorizzati nella cache per evitare calcoli ripetuti</p>
+            </div>
+            
+            <div class="advantage-card">
+                <h3>Parallelizzazione</h3>
+                <p>Le computazioni possono essere eseguite in parallelo senza rischi di race condition</p>
+            </div>
+            
+            <div class="advantage-card">
+                <h3>Testing più facile</h3>
+                <p>Le funzioni possono essere testate in isolamento con input e output prevedibili</p>
+            </div>
+            
+            <div class="advantage-card">
+                <h3>Ottimizzazioni del compilatore</h3>
+                <p>Permette ottimizzazioni più aggressive come lazy evaluation e riordinamento delle operazioni</p>
+            </div>
+        </div>
+        
+        <p class="highlight">Questo principio è particolarmente importante in JAX, dove la prevedibilità e l'assenza di effetti collaterali permettono trasformazioni come JIT, vettorizzazione e parallelizzazione in modo sicuro e prevedibile.</p>
+    </div>
+</body>
+</html>

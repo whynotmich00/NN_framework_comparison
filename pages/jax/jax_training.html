@@ -29,22 +29,30 @@
         <div class="content-section">
             <h2>Addestramento di una Rete MLP su MNIST con JAX</h2>
             
-            <p>In questa sezione, mostreremo come implementare e addestrare una rete neurale multi-layer perceptron (MLP) sul dataset MNIST usando JAX e la sua libreria companion Flax, che fornisce componenti di più alto livello per il deep learning.</p>
+            <p>In questa sezione, mostreremo come implementare e addestrare una rete neurale multi-layer perceptron (MLP) sul dataset MNIST usando solamente JAX.
+                Questo vuol dire che non utilizzeremo Flax e Optax per layer e ottimizzatori, nella vita di tutti giorni è più comune utilizzare queste librerie.
+                Per raggiungere l'obiettivo dovremo implemetare:
+                <ul>
+                    <li>Un modello: MLP con funzioni di attivatione ReLU</li>
+                    <li>Un ottimizzatore: SGD</li>
+                    <li>Una funzione di loss: Cross-Entropy</li>
+                    <li>Una funzione che definisce il singolo step di training: calcolo del gradiente + aggiornamento pesi</li>
+                    <li>Una ciclo di allenamento: per aggiornare i pesi del modello più volte (for loop)</li>
+                    <li>Altre funzioni minori: loading dei dati, calcolo dell'accuratezza, inizializzazione dei pesi e illustrazione dei risultati </li>
+                </ul>
+            </p>
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
             <div class="code-block">
 <pre><code class="language-python">import jax
 import jax.numpy as jnp
+import jax.random as jrn
+import jax.tree_util as jtu
 from jax import grad, jit, vmap
 from jax import random
 import numpy as np
+from functools import partial
 import matplotlib.pyplot as plt
-
-# Flax è una libreria di neural network costruita su JAX
-import flax
-import flax.linen as nn
-from flax.training import train_state
-import optax  # Libreria di ottimizzatori per JAX
 
 # Impostazione della precisione per output più leggibili
 jax.config.update('jax_enable_x64', False)
@@ -53,16 +61,17 @@ jax.config.update('jax_enable_x64', False)
 print("Dispositivi disponibili:", jax.devices())
 
 # Iperparametri
-batch_size = 64
-learning_rate = 0.001
-num_epochs = 10
-momentum = 0.9</code></pre>
+BATCH_SIZE = 64
+LEARNING_RATE = 0.001
+NUM_EPOCHS = 10
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>2. Caricamento e Preparazione del Dataset MNIST</h3>
             <div class="code-block">
 <pre><code class="language-python">import tensorflow as tf
-tf.config.set_visible_devices([], 'GPU')
+tf.config.set_visible_devices([], 'GPU') # Disabilita l'uso della GPU in TensorFlow
 
 def load_dataset():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -75,8 +84,8 @@ def load_dataset():
     return x_train, y_train, x_test, y_test
 
 x_train, y_train, x_test, y_test = load_dataset()
-print("Forma dei dati di training:", x_train.shape)
-print("Forma delle etichette di training:", y_train.shape)
+print("Dimensioni dei dati di training:", x_train.shape)
+print("Dimensioni delle etichette di training:", y_train.shape)
 
 def get_batch(rng, x, y, batch_size):
     dataset_size = x.shape[0]
@@ -87,88 +96,113 @@ def get_batch(rng, x, y, batch_size):
         batch_idx = indices[start_idx:start_idx + batch_size]
         yield x[batch_idx], y[batch_idx]
         start_idx += batch_size</code></pre>
+        <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
-            <h3>3. Definizione dell'Architettura della Rete con Flax</h3>
+            <h3>3. Definizione dell'Architettura della Rete</h3>
             <div class="code-block">
-<pre><code class="language-python">class MLP(nn.Module):
-    @nn.compact
-    def __call__(self, x, training=True):
-        x = nn.Dense(features=512)(x)
-        x = nn.relu(x)
-        x = nn.Dropout(rate=0.2, deterministic=not training)(x)
-        x = nn.Dense(features=256)(x)
-        x = nn.relu(x)
-        x = nn.Dropout(rate=0.2, deterministic=not training)(x)
-        x = nn.Dense(features=10)(x)
-        return x
+<pre><code class="language-python">def init_weights(shape, key):
+    """Inizializza i pesi della rete con distribuzione normale"""
+    scale = shape[0] ** -0.5 # kaiming initialization
+    return random.normal(key, shape) * scale
 
-def create_train_state(rng, learning_rate, momentum):
-    model = MLP()
-    dummy_input = jnp.ones((1, 28*28))
-    params = model.init(rng, dummy_input)['params']
-    tx = optax.sgd(learning_rate=learning_rate, momentum=momentum)
-    return train_state.TrainState.create(
-        apply_fn=model.apply,
-        params=params,
-        tx=tx,
-    )</code></pre>
+def init_bias(shape, key):
+    """Inizializza i bias della rete a zero"""
+    return jnp.zeros(shape)
+
+def dense(params, x):
+    """Layer denso (fully connected)"""
+    w, b = params
+    return jnp.dot(x, w) + b
+
+def net(params, x):
+    """Rete neurale MLP"""
+    x = dense(params[0], x)
+    x = jax.nn.relu(x)
+    x = dense(params[1], x)
+    return x
+
+def create_net_params(input_dim, hidden_dim, output_dim, rng):
+    """Crea i parametri per una rete MLP con 2 layer latenti"""
+    keys = jrn.split(rng, num=2)
+    params = []
+    in_dims = (input_dim, hidden_dim)
+    out_dims = (hidden_dim, output_dim)
+    for in_dim, out_dim, key in zip(in_dims, out_dims, keys):
+        w = init_weights((in_dim, out_dim), key)
+        b = init_bias((out_dim,), key)
+        params.append((w, b))
+    return params
+
+def sgd(learning_rate, params, grads):
+    """Aggiorna i pesi usando SGD"""
+    updates = jtu.tree_map(lambda g: -learning_rate * g, grads)
+    new_params = jtu.tree_map(lambda p, u: p + u, params, updates)
+    return new_params
+
+sgd_update = partial(sgd, learning_rate=LEARNING_RATE) # funzione parzialmente "valutata" che ci permette di scegliere il learning_rate
+                                                       # a priori e non passarlo come parametro in ogni step dell'allenamento
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>4. Implementazione delle Funzioni di Loss e Accuracy</h3>
             <div class="code-block">
 <pre><code class="language-python">def cross_entropy_loss(logits, labels):
-    labels_onehot = jax.nn.one_hot(labels, 10)
-    return optax.softmax_cross_entropy(logits=logits, labels=labels_onehot).mean()
+    labels_one_hot = jax.nn.one_hot(labels, 10)
+    return -jnp.mean(jnp.sum(labels_one_hot * jax.nn.log_softmax(logits), axis=-1))
 
 def compute_metrics(logits, labels):
     loss = cross_entropy_loss(logits, labels)
     accuracy = jnp.mean(jnp.argmax(logits, -1) == labels)
     return {'loss': loss, 'accuracy': accuracy}</code></pre>
+    <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>5. Definizione dei Loop di Addestramento e Valutazione</h3>
             <div class="code-block">
-<pre><code class="language-python">@jax.jit
-def train_step(state, batch):
+<pre><code class="language-python">@partial(jax.jit, static_argnames=("model"))
+def train_step(batch, params, model):
     x, y = batch
     def loss_fn(params):
-        logits = state.apply_fn({'params': params}, x, training=True)
+        logits = model(params, x)
         loss = cross_entropy_loss(logits, y)
         return loss, logits
-    (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(state.params)
-    state = state.apply_gradients(grads=grads)
+    (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(params)
+    new_params = sgd_update(params, grads)
     metrics = compute_metrics(logits, y)
-    return state, metrics
+    return new_params, metrics
 
-@jax.jit
-def eval_step(state, batch):
+@partial(jax.jit, static_argnames=("model"))
+def eval_step(batch, params, model):
     x, y = batch
-    logits = state.apply_fn({'params': state.params}, x, training=False)
+    logits = model(params, y)
     return compute_metrics(logits, y)</code></pre>
+    <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>6. Esecuzione dell'Addestramento</h3>
             <div class="code-block">
-<pre><code class="language-python">def train_epoch(state, train_ds, batch_size, rng):
+<pre><code class="language-python">def train_epoch(params, model, train_ds, batch_size, rng):
     train_metrics = []
     for x, y in get_batch(rng, *train_ds, batch_size):
-        state, metrics = train_step(state, (x, y))
+        params, metrics = train_step((x, y), params, model)
         train_metrics.append(metrics)
-    train_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), train_metrics)
-    return state, train_metrics, rng
+    train_metrics = jtu.tree_map(lambda x: jnp.mean(jnp.array(x)), train_metrics)
+    return params, train_metrics, rng
 
-def eval_model(state, test_ds, batch_size):
+def eval_model(params, model, test_ds, batch_size):
     test_metrics = []
     for x, y in get_batch(random.PRNGKey(0), *test_ds, batch_size):
-        metrics = eval_step(state, (x, y))
+        metrics = eval_step((x, y), params, model)
         test_metrics.append(metrics)
     test_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), test_metrics)
     return test_metrics
 
 rng = random.PRNGKey(0)
 rng, init_rng = random.split(rng)
-state = create_train_state(init_rng, learning_rate, momentum)
+params = create_net_params(input_dim=28*28, hidden_dim=128, output_dim=10, rng=init_rng)
+model = net         # sono d'accordo, questa linea è brutta (da modificare in futuro)
 train_ds = (x_train, y_train)
 test_ds = (x_test, y_test)
 train_metrics_history = []
@@ -176,7 +210,7 @@ test_metrics_history = []
 
 for epoch in range(num_epochs):
     rng, epoch_rng = random.split(rng)
-    state, train_metrics, rng = train_epoch(state, train_ds, batch_size, epoch_rng)
+    params, train_metrics, rng = train_epoch(params, model, train_ds, batch_size, epoch_rng)
     test_metrics = eval_model(state, test_ds, batch_size)
     print(f'Epoca {epoch+1}/{num_epochs}: '
           f'train_loss={train_metrics["loss"]:.4f}, '
@@ -185,6 +219,7 @@ for epoch in range(num_epochs):
           f'test_accuracy={test_metrics["accuracy"]:.4f}')
     train_metrics_history.append(train_metrics)
     test_metrics_history.append(test_metrics)</code></pre>
+    <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
 
             <h3>Output Tipico dell'Addestramento</h3>
@@ -225,11 +260,45 @@ plt.legend()
 plt.tight_layout()
 plt.savefig('jax_mnist_history.png')
 plt.show()</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
 
             <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali...</p>
         </div>
     </div>
+
+    <script>
+        function copyCode(button) {
+            // Trova l'elemento pre più vicino al pulsante
+            const pre = button.parentElement.querySelector('pre');
+            const code = pre.textContent;
+            
+            // Crea un elemento textarea temporaneo
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            
+            // Seleziona e copia il testo
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Rimuovi l'elemento temporaneo
+            document.body.removeChild(textarea);
+            
+            // Feedback visivo
+            button.textContent = 'Copiato!';
+            button.classList.add('success');
+            
+            // Ripristina il testo del pulsante dopo 2 secondi
+            setTimeout(() => {
+                button.textContent = 'Copia';
+                button.classList.remove('success');
+            }, 2000);
+        }
+    </script>
 
     <footer>
         <div class="container">

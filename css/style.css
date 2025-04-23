@@ -435,3 +435,23 @@ pre {
     margin: 0;
     border-radius: 0;
 }
+
+.copy-button {
+    position: absolute;
+    top: 0px;
+    right: 60px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.copy-button:hover {
+    background-color: #2980b9;
+}
+.copy-button.success {
+    background-color: #27ae60;
+}

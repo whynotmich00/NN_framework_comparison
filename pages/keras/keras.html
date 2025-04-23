@@ -42,6 +42,21 @@
         <!-- SEZIONE 1: Backend e Architettura di Keras -->
         <div class="content-section">
             <h2>Il Backend di Keras e la sua Architettura</h2>
+            <p>Originariamente, Keras è nato come un'interfaccia di alto livello che poteva funzionare con diversi backend, cioè diverse librerie di deep learning che eseguivano effettivamente i calcoli. I principali backend supportati erano:
+
+                TensorFlow (sviluppato da Google)
+                Theano (uno dei primi framework per deep learning)
+                CNTK (Microsoft Cognitive Toolkit)
+                
+                Questo significava che gli sviluppatori potevano scrivere codice usando l'API di Keras e poi scegliere quale motore di calcolo (backend) utilizzare per l'effettiva esecuzione, senza dover cambiare il proprio codice.
+                Tuttavia, nel 2019 è avvenuto un cambiamento importante: Keras è stato integrato direttamente all'interno di TensorFlow (come tf.keras). Da quel momento, Keras ha iniziato a supportare ufficialmente solo il backend di TensorFlow, abbandonando il supporto per gli altri backend.
+                Questo cambiamento ha significato che:
+                
+                Keras è diventato parte integrante dell'ecosistema TensorFlow
+                Non è più possibile utilizzare Keras con Theano o CNTK come backend
+                Gli sviluppatori che volevano continuare a usare l'API di Keras dovevano passare a TensorFlow
+                
+                Nel 2023, Keras ha subito un'ulteriore evoluzione diventando un progetto indipendente di nuovo (Keras 3.0), che può funzionare con diversi backend moderni come TensorFlow, JAX e PyTorch, riprendendo in parte la sua filosofia originale di essere un'interfaccia unificata per più framework di deep learning.</p>
             
             <p>Keras è un'API di alto livello per reti neurali, sviluppata con l'obiettivo di consentire una rapida sperimentazione e prototipazione. Originariamente creata da François Chollet nel 2015, è diventata una delle interfacce più popolari per lo sviluppo di modelli di deep learning.</p>
             
