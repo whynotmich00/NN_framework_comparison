@@ -49,7 +49,6 @@ import jax.numpy as jnp
 import jax.random as jrn
 import jax.tree_util as jtu
 from jax import grad, jit, vmap
-from jax import random
 import numpy as np
 from functools import partial
 import matplotlib.pyplot as plt
@@ -176,7 +175,7 @@ def train_step(batch, params, model):
 @partial(jax.jit, static_argnames=("model"))
 def eval_step(batch, params, model):
     x, y = batch
-    logits = model(params, y)
+    logits = model(params, x)
     return compute_metrics(logits, y)</code></pre>
     <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
@@ -193,14 +192,14 @@ def eval_step(batch, params, model):
 
 def eval_model(params, model, test_ds, batch_size):
     test_metrics = []
-    for x, y in get_batch(random.PRNGKey(0), *test_ds, batch_size):
+    for x, y in get_batch(jrn.PRNGKey(0), *test_ds, batch_size):
         metrics = eval_step((x, y), params, model)
         test_metrics.append(metrics)
     test_metrics = jax.tree_map(lambda x: jnp.mean(jnp.array(x)), test_metrics)
     return test_metrics
 
-rng = random.PRNGKey(0)
-rng, init_rng = random.split(rng)
+rng = jrn.PRNGKey(0)
+rng, init_rng = jrn.split(rng)
 params = create_net_params(input_dim=28*28, hidden_dim=128, output_dim=10, rng=init_rng)
 model = net         # sono d'accordo, questa linea è brutta (da modificare in futuro)
 train_ds = (x_train, y_train)
@@ -209,7 +208,7 @@ train_metrics_history = []
 test_metrics_history = []
 
 for epoch in range(num_epochs):
-    rng, epoch_rng = random.split(rng)
+    rng, epoch_rng = jrn.split(rng)
     params, train_metrics, rng = train_epoch(params, model, train_ds, batch_size, epoch_rng)
     test_metrics = eval_model(state, test_ds, batch_size)
     print(f'Epoca {epoch+1}/{num_epochs}: '
@@ -234,27 +233,29 @@ Epoca 2/10: train_loss=0.1488, train_accuracy=0.9561, test_loss=0.1084, test_acc
 
             <h3>7. Visualizzazione dei Risultati</h3>
             <div class="code-block">
-<pre><code class="language-python">epochs = range(1, num_epochs + 1)
-train_loss = [metrics['loss'] for metrics in train_metrics_history]
-train_accuracy = [metrics['accuracy'] for metrics in train_metrics_history]
-test_loss = [metrics['loss'] for metrics in test_metrics_history]
-test_accuracy = [metrics['accuracy'] for metrics in test_metrics_history]
+<pre><code class="language-python">epochs = range(1, NUM_EPOCHS + 1)
+train_loss = [metrics[0] for metrics in train_metrics_history]
+train_accuracy = [metrics[1] for metrics in train_metrics_history]
+test_loss = [metrics[0] for metrics in test_metrics_history]
+test_accuracy = [metrics[1] for metrics in test_metrics_history]
 
 plt.figure(figsize=(12, 5))
 plt.subplot(1, 2, 1)
-plt.plot(epochs, train_loss, label='Train Loss')
-plt.plot(epochs, test_loss, label='Test Loss')
+plt.plot(epochs, train_loss, label='Train Loss', marker="o", alpha=0.7)
+plt.plot(epochs, test_loss, label='Test Loss', marker="o", alpha=0.7)
 plt.xlabel('Epoche')
 plt.ylabel('Loss')
 plt.title('Training e Test Loss')
+plt.grid()
 plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.plot(epochs, train_accuracy, label='Train Accuracy')
-plt.plot(epochs, test_accuracy, label='Test Accuracy')
+plt.plot(epochs, train_accuracy, label='Train Accuracy', marker="o", alpha=0.7)
+plt.plot(epochs, test_accuracy, label='Test Accuracy', marker="o", alpha=0.7)
 plt.xlabel('Epoche')
 plt.ylabel('Accuratezza')
 plt.title('Training e Test Accuracy')
+plt.grid()
 plt.legend()
 
 plt.tight_layout()
@@ -262,7 +263,10 @@ plt.savefig('jax_mnist_history.png')
 plt.show()</code></pre>
 <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
-
+            <div class="output-jax-training">
+                    <img src="../../images/jax_mnist_history.png" alt="Training accuracy jax" class="training-jax-image">
+                    <p class="image-caption">Schema della struttura e navigazione del sito web</p>
+            </div>
             <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali...</p>
         </div>
     </div>
