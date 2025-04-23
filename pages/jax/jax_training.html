@@ -223,12 +223,21 @@ for epoch in range(num_epochs):
 
             <h3>Output Tipico dell'Addestramento</h3>
             <div class="output-block">
-<pre><code class="language-none">Dispositivi disponibili: [CpuDevice(id=0)]
-Forma dei dati di training: (60000, 784)
-Forma delle etichette di training: (60000,)
-Epoca 1/10: train_loss=0.3219, train_accuracy=0.9078, test_loss=0.1532, test_accuracy=0.9556
-Epoca 2/10: train_loss=0.1488, train_accuracy=0.9561, test_loss=0.1084, test_accuracy=0.9674
-...</code></pre>
+<pre><code class="language-none">Dispositivi disponibili: [CudaDevice(id=0)]
+Dimensioni dei dati di training: (60000, 784)
+Dimensioni delle etichette di training: (60000,)
+Epoca 1/10: train_loss=2.1064, train_accuracy=0.3885, test_loss=1.8790, test_accuracy=0.6175
+Epoca 2/10: train_loss=1.6746, train_accuracy=0.6960, test_loss=1.4477, test_accuracy=0.7553
+Epoca 3/10: train_loss=1.2898, train_accuracy=0.7766, test_loss=1.1133, test_accuracy=0.8043
+Epoca 4/10: train_loss=1.0207, train_accuracy=0.8093, test_loss=0.8987, test_accuracy=0.8294
+Epoca 5/10: train_loss=0.8502, train_accuracy=0.8294, test_loss=0.7636, test_accuracy=0.8461
+Epoca 6/10: train_loss=0.7397, train_accuracy=0.8420, test_loss=0.6742, test_accuracy=0.8566
+Epoca 7/10: train_loss=0.6641, train_accuracy=0.8522, test_loss=0.6113, test_accuracy=0.8639
+Epoca 8/10: train_loss=0.6096, train_accuracy=0.8595, test_loss=0.5647, test_accuracy=0.8708
+Epoca 9/10: train_loss=0.5684, train_accuracy=0.8651, test_loss=0.5291, test_accuracy=0.8758
+Epoca 10/10: train_loss=0.5360, train_accuracy=0.8701, test_loss=0.5008, test_accuracy=0.8799
+Durata di training: 13.31 secondi
+</code></pre>
             </div>
 
             <h3>7. Visualizzazione dei Risultati</h3>
