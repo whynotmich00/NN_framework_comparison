@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="../../js/main.js"></script>
+
     <style>
         .btn {
             margin-right: 10px;
@@ -45,7 +47,14 @@
         <div class="content-section">
             <h2>Addestramento di una Rete MLP su MNIST con Keras</h2>
             
-            <p>In questa sezione, esaminiamo come implementare e addestrare una rete neurale multi-layer perceptron (MLP) classica sul dataset MNIST usando Keras. La semplicità e l'eleganza dell'API Keras sono evidenti in questo esempio.</p>
+            <p>In questa sezione, esaminiamo come implementare e addestrare una rete neurale multi-layer perceptron (MLP) classica sul dataset MNIST usando Keras. La semplicità e l'eleganza dell'API Keras sono evidenti in questo esempio.
+                Questo offre numerosi vantaggi, sbagliare è più difficile usando codice già testato e scritto da esperti del settore. Testare diventa veloce e facile da debuggare.
+                Una grande comodità di Keras sono le Callbacks, che permettono di monitorare e controllare l'addestramento in maniera automatica, cosa che non succede in JAX. Le Callbacks contornano 
+                il core del codice, gli utilizzi classici sono il salvataggio dei pesi durante il training oppure lo stop dell'allenamento quando una condizione è soddisfatta (es: accuratezza maggiore di una soglia).
+
+                Iniziamo con l'importare le librerie necessarie e configurare i parametri di base per l'addestramento. Utilizzeremo il dataset MNIST, un classico per la classificazione delle cifre scritte a mano, e costruiremo una rete MLP semplice ma efficace.
+                Per installare le varie librerie si possono confrontare le relative documentazioni ufficiali. 
+            </p>
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
             <div class="code-block">
@@ -63,9 +72,13 @@ epochs = 10
 # Impostazioni del formato per l'input
 img_rows, img_cols = 28, 28
 input_shape = (img_rows, img_cols, 1)</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>2. Caricamento e Preparazione del Dataset MNIST</h3>
+            <p>Il dataset MNIST, a causa della sua popolarità, è già integrato in Keras, quindi possiamo caricarlo direttamente chiamando l'apposita funzione. 
+                Successivamente, modifichiamo le dimensione dei tensori immagini in quanto i nostri layer si aspettano delle immagini che abbiano dimensioni (1, altezza, largezza, canale_colore); 
+                poi normalizziamo in modo da avere valori tra 0 e 1.</p>
             <div class="code-block">
 <pre><code class="language-python"># Caricamento del dataset integrato di Keras
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -85,10 +98,17 @@ print(x_test.shape[0], 'test samples')
 # Conversione delle etichette in categorie one-hot
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>3. Definizione dell'Architettura della Rete</h3>
-            <div class="code-block">
+            <p> Più layer vanno a comporre l'architettura sequenziale del modello, Keras si preoccuperà di passare l'immagine in input ad ognuno di essi nell'oridine in cui li definiamo,
+                e di passare l'output dell'ultimo layer al layer di output. La funzione Flatten serve a trasformare le immagini 28x28 in vettori 784, che sono i dati in input per il primo hidden layer. 
+                I layer Dense sono i layer fully connected, mentre il Dropout serve a regolarizzare il modello per evitare overfitting. Infine, l'output layer ha una funzione di attivazione softmax per la classificazione multi-classe.
+                La funzione di attivazione softmax è utile per ottenere probabilità normalizzate per ciascuna classe, in modo da poter interpretare l'output come una distribuzione di probabilità.</p>
+                NOTA: tantissime informazioni sono addensate in queste poche righe di codice: l'attivazione avviene in maniera non esplicita nel grafo computazionale, 
+                le dimensioni in input di ogni layer sono implicite dichiariamo solo le dimensioni di output. E se volessi vedere l'output latente di un solo layer durante l'allenamento per studiarlo? Da questo codice non 
+                mi sembra di avere un modo facile ed intuitivo per poterlo fare.<div class="code-block">
 <pre><code class="language-python"># Utilizzo dell'API Sequenziale di Keras
 model = keras.Sequential([
     # Flatten dell'input (trasforma le immagini 28x28 in vettori 784)
@@ -108,6 +128,7 @@ model = keras.Sequential([
 
 # Riepilogo dell'architettura del modello
 model.summary()</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <div class="output-block">
@@ -134,6 +155,12 @@ _________________________________________________________________</code></pre>
             </div>
             
             <h3>4. Compilazione del Modello</h3>
+            <p>La compilazione del modello è il passo finale prima di iniziare l'addestramento. Qui definiamo la funzione di loss, l'ottimizzatore e le metriche da monitorare durante l'addestramento.
+                Queste sono le decisioni principali che dobbiamo prendere prima di iniziare l'addestramento e che rispecchiano il task che vogliamo risolvere.
+                In questo caso, utilizziamo la funzione di loss 'categorical_crossentropy' per la classificazione multi-classe e l'ottimizzatore Adam, che è uno dei più popolari e performanti per il deep learning.</p>
+                Attenzione, compilazione qui è intesa in maniera diversa rispetto a quella che si usa in JAX. Usare il metodo compile di Keras non significa che il codice venga compilato in un grafo computazionale, ma che viene creato un oggetto che contiene le informazioni necessarie per l'addestramento del modello.
+                Keras farà delle ottimizzazione dietro le quinte, ma non nel senso stretto di creare del codice ottimizzato a basso livello per l'esecuzione, come fa JAX quando chiamiamo esplicitamente la compilazione just-in-time.
+                </p>
             <div class="code-block">
 <pre><code class="language-python"># Configurazione del processo di ottimizzazione
 model.compile(
@@ -141,6 +168,7 @@ model.compile(
     optimizer=keras.optimizers.Adam(),  # Ottimizzatore Adam con parametri default
     metrics=['accuracy']  # Monitoriamo l'accuratezza durante l'addestramento
 )</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>5. Definizione di Callback e Addestramento</h3>
@@ -179,6 +207,7 @@ history = model.fit(
     validation_split=0.1,  # 10% dei dati di training usati per validazione
     callbacks=callbacks
 )</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>6. Valutazione del Modello</h3>
@@ -187,6 +216,7 @@ history = model.fit(
 score = model.evaluate(x_test, y_test, verbose=0)
 print(f'Test loss: {score[0]:.4f}')
 print(f'Test accuracy: {score[1]:.4f}')</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>7. Visualizzazione dei Risultati</h3>
@@ -222,6 +252,7 @@ plt.ylabel('Loss')
 plt.tight_layout()
 plt.savefig('keras_mnist_history.png')
 plt.show()</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>Output Tipico dell'Addestramento</h3>
@@ -248,7 +279,9 @@ Test loss: 0.0394
 Test accuracy: 0.9876</code></pre>
             </div>
             
-            <p>Questo esempio dimostra la semplicità e la chiarezza dell'API Keras. Con poche righe di codice, siamo in grado di costruire, addestrare e valutare una rete neurale complessa. La struttura modulare e l'API ad alto livello rendono il processo intuitivo, pur mantenendo potenza e flessibilità.</p>
+            <p>Questo esempio dimostra la semplicità e la chiarezza dell'API Keras. La maggior parte dello sforzo nello scrivere questo codice, infatti, proviene dall'organizzare e trasformare opportunamante
+                i dati e dal plotting finale dei risultati, il resto della "pipeline" la gestisce Keras per noi: la creazione del modetto, l'utilizzo di una funzione di loss e di un ottimizzatore; ci è solo bastato inserire le nostre scelte nel metodo compile,
+                 fit ed evaluate dell'oggetto model. Con poche righe di codice, siamo in grado di costruire, addestrare e valutare una rete neurale complessa. La struttura modulare e l'API ad alto livello rendono il processo intuitivo, pur mantenendo una buona potenza e flessibilità.</p>
         </div>
     </div>
     

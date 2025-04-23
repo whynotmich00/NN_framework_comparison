@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="../../js/main.js"></script>
+
     <style>
     .tab {
       padding: 10px 20px;
@@ -218,6 +220,7 @@ print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
 print(f"Accuratezza sul test set: {test_acc:.4f}")
                     </code></pre>
+                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
                 </div>
                 
                 <div id="pytorch" class="tab-content">
@@ -376,6 +379,7 @@ training_time = train_model(model, trainloader, criterion, optimizer, epochs=10)
 # Esegui l'inferenza
 inference_time, accuracy = test_model(model, testloader)
             </code></pre>
+            <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
 
             <div id="jax" class="tab-content">
@@ -577,10 +581,6 @@ batches = jnp.array_split(x_test, 10)  # Split in lotti più piccoli per l'infer
 test_labels = jnp.array_split(y_test, 10)
 accuracies = []
 
-# proviamo a chiamare il primo eval step fuori dal loop
-accuracy = eval_step(state, batches[0], test_labels[0])
-accuracies.append(accuracy)
-
 for batch_images, batch_labels in zip(batches, test_labels):
     accuracy = eval_step(state, batch_images, batch_labels)
     accuracies.append(accuracy)
@@ -592,6 +592,7 @@ print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
 print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
 print(f"Accuratezza sul test set: {test_accuracy:.4f}")
                     </code></pre>
+                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
                 </div>
             </div>
         </div>
@@ -635,24 +636,26 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
                         <td>81.22%</td>
                     </tr>
                     <tr>
-                        <td>Utilizzo memoria picco (GPU)</td>
+                        <td>Utilizzo memoria picco (GPU) *</td>
                         <td>2.8 GB</td>
                         <td>2.1 GB</td>
                         <td>1.7 GB</td>
                     </tr>
                     <tr>
-                        <td>Tempo inizializzazione</td>
-                        <td>1.2 s</td>
-                        <td>0.8 s</td>
-                        <td>4.7 s</td>
+                        <td>Utilizzo memoria picco (RAM) *</td>
+                        <td>2.8 GB</td>
+                        <td>2.1 GB</td>
+                        <td>1.7 GB</td>
                     </tr>
                 </tbody>
             </table>
+            <p class="note">* Per misurare l'utilizzo di memoria è stato utilizzato uno script più complicato del codice messo a disposizione in questa pagina, puoi trovare lo script utilizzato
+                in questa pagina <a href="">GitHub</a>.</p>
         </div>
         
         <div class="benchmark-graph">
             <h2>Grafici di Confronto</h2>
-            <img src="images/training_time_comparison.png" alt="Confronto tempi di training" width="800">
+            <img src="images/training_time_frameworks.png" alt="Confronto tempi di training" width="800">
             <p class="image-caption">Confronto dei tempi di training tra i framework (secondi, minore è meglio)</p>
             
             <img src="images/inference_time_comparison.png" alt="Confronto tempi di inferenza" width="800">

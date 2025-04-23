@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="../../js/main.js"></script>
 </head>
 <body>
     <header>
@@ -43,6 +44,9 @@
             </p>
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
+            <p>Iniziamo importando le librerie necessarie e configurando JAX per l'uso della GPU. Per installare JAX seguire gli step della documentazione ufficiale. 
+                Se non si possiede una GPU, JAX funzionerà comunque in CPU, ma sarà più lento. Inoltre definiamo alcuni iperparametri (in maiuscolo) che useremo in seguito.</p>
+
             <div class="code-block">
 <pre><code class="language-python">import jax
 import jax.numpy as jnp
@@ -52,6 +56,9 @@ from jax import grad, jit, vmap
 import numpy as np
 from functools import partial
 import matplotlib.pyplot as plt
+
+import tensorflow as tf
+tf.config.set_visible_devices([], 'GPU') # Disabilita l'uso della GPU in TensorFlow
 
 # Impostazione della precisione per output più leggibili
 jax.config.update('jax_enable_x64', False)
@@ -68,11 +75,17 @@ NUM_EPOCHS = 10
             </div>
             
             <h3>2. Caricamento e Preparazione del Dataset MNIST</h3>
-            <div class="code-block">
-<pre><code class="language-python">import tensorflow as tf
-tf.config.set_visible_devices([], 'GPU') # Disabilita l'uso della GPU in TensorFlow
+            <p>Carichiamo il dataset MNIST, normalizziamo i dati e prepariamo le etichette. MNIST è un benchmark classico per la classificazione di immagini di cifre scritte a mano.
 
-def load_dataset():
+                Attualmente, JAX non dispone di un proprio sistema nativo per il caricamento dei dati. Per questo motivo, quando si lavora con JAX, è necessario affidarsi ai DataLoader di TensorFlow o PyTorch. In questo esempio, utilizziamo TensorFlow, generalmente preferito per questa operazione.
+                
+                Questa limitazione rappresenta un punto debole di JAX: non solo manca un sistema integrato per il data loading, ma sono anche assenti molte delle trasformazioni comuni nel preprocessing, in particolare per immagini e dati audio.
+                Al di fuori degli esempi puramente didattici queste trasformazioni
+                sono fondamentali per ottenere buone performance in termini di accuratezza e generalizzazione del modello.
+                Quindi, in tal caso, dovremo appoggiarci a librerie come <a href="https://www.tensorflow.org/datasets?hl=it" >tensorflow_datasets</a> e <a href="https://pytorch.org/vision/stable/index.html" >torchvision</a>.</p>
+                 </p>
+            <div class="code-block">
+<pre><code class="language-python">def load_dataset():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     x_train = x_train.astype(np.float32) / 255.0
     x_test = x_test.astype(np.float32) / 255.0
@@ -243,10 +256,10 @@ Durata di training: 13.31 secondi
             <h3>7. Visualizzazione dei Risultati</h3>
             <div class="code-block">
 <pre><code class="language-python">epochs = range(1, NUM_EPOCHS + 1)
-train_loss = [metrics[0] for metrics in train_metrics_history]
-train_accuracy = [metrics[1] for metrics in train_metrics_history]
-test_loss = [metrics[0] for metrics in test_metrics_history]
-test_accuracy = [metrics[1] for metrics in test_metrics_history]
+train_loss = [loss for loss, _ in train_metrics_history]
+train_accuracy = [accuracy for _, accuracy in train_metrics_history]
+test_loss = [loss for loss, _ in test_metrics_history]
+test_accuracy = [accuracy for _, accuracy in test_metrics_history]
 
 plt.figure(figsize=(12, 5))
 plt.subplot(1, 2, 1)
@@ -279,39 +292,6 @@ plt.show()</code></pre>
             <p>Questo esempio dimostra come JAX, insieme a Flax, offra un approccio potente e flessibile all'implementazione di reti neurali...</p>
         </div>
     </div>
-
-    <script>
-        function copyCode(button) {
-            // Trova l'elemento pre più vicino al pulsante
-            const pre = button.parentElement.querySelector('pre');
-            const code = pre.textContent;
-            
-            // Crea un elemento textarea temporaneo
-            const textarea = document.createElement('textarea');
-            textarea.value = code;
-            textarea.setAttribute('readonly', '');
-            textarea.style.position = 'absolute';
-            textarea.style.left = '-9999px';
-            document.body.appendChild(textarea);
-            
-            // Seleziona e copia il testo
-            textarea.select();
-            document.execCommand('copy');
-            
-            // Rimuovi l'elemento temporaneo
-            document.body.removeChild(textarea);
-            
-            // Feedback visivo
-            button.textContent = 'Copiato!';
-            button.classList.add('success');
-            
-            // Ripristina il testo del pulsante dopo 2 secondi
-            setTimeout(() => {
-                button.textContent = 'Copia';
-                button.classList.remove('success');
-            }, 2000);
-        }
-    </script>
 
     <footer>
         <div class="container">

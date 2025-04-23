@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="../../js/main.js"></script>
 </head>
 <body>
     <header>
@@ -31,7 +35,7 @@
             
             <h3>1. Importazione delle Librerie e Configurazione</h3>
             <div class="code-block">
-<pre><code class="python-language">import torch
+<pre><code class="language-python">import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
@@ -49,22 +53,24 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.1307,), (0.3081,))
 ])</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>2. Caricamento del Dataset MNIST</h3>
             <div class="code-block">
-<pre><code class="python-language"># Caricamento del dataset di training
+<pre><code class="language-python"># Caricamento del dataset di training
 train_dataset = datasets.MNIST('data', train=True, download=True, transform=transform)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # Caricamento del dataset di test
 test_dataset = datasets.MNIST('data', train=False, transform=transform)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>3. Definizione dell'Architettura della Rete</h3>
             <div class="code-block">
-<pre><code class="python-language">class MLP(nn.Module):
+<pre><code class="language-python">class MLP(nn.Module):
     def __init__(self):
         super(MLP, self).__init__()
         # Primo layer fully connected: 784 (28x28) → 512
@@ -97,11 +103,12 @@ model = MLP().to(device)
 # Definizione di loss function e optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>4. Loop di Addestramento</h3>
             <div class="code-block">
-<pre><code class="python-language">def train(model, device, train_loader, optimizer, epoch):
+<pre><code class="language-python">def train(model, device, train_loader, optimizer, epoch):
     # Imposta il modello in modalità training
     model.train()
     
@@ -128,11 +135,12 @@ optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</code>
         if batch_idx % 100 == 0:
             print(f'Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} '
                   f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')</code></pre>
+                  <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>5. Valutazione del Modello</h3>
             <div class="code-block">
-<pre><code class="python-language">def test(model, device, test_loader):
+<pre><code class="language-python">def test(model, device, test_loader):
     # Imposta il modello in modalità valutazione
     model.eval()
     test_loss = 0
@@ -162,11 +170,12 @@ optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</code>
     print(f'\nTest set: Average loss: {test_loss:.4f}, '
           f'Accuracy: {correct}/{len(test_loader.dataset)} '
           f'({100. * correct / len(test_loader.dataset):.2f}%)\n')</code></pre>
+          <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>6. Esecuzione dell'Addestramento</h3>
             <div class="code-block">
-<pre><code class="python-language"># Loop principale di addestramento
+<pre><code class="language-python"># Loop principale di addestramento
 for epoch in range(1, epochs + 1):
     train(model, device, train_loader, optimizer, epoch)
     test(model, device, test_loader)
@@ -174,11 +183,12 @@ for epoch in range(1, epochs + 1):
 # Salvataggio del modello addestrato
 torch.save(model.state_dict(), "mnist_mlp.pth")
 print("Modello salvato con successo!")</code></pre>
+<button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
             <h3>Output Tipico dell'Addestramento</h3>
             <div class="output-block">
-<pre><code class="python-language">Epoch: 1 [0/60000 (0%)]	Loss: 2.300037
+<pre><code class="language-none">Epoch: 1 [0/60000 (0%)]	Loss: 2.300037
 Epoch: 1 [6400/60000 (11%)]	Loss: 0.752236
 Epoch: 1 [12800/60000 (21%)]	Loss: 0.405645
 Epoch: 1 [19200/60000 (32%)]	Loss: 0.333895
