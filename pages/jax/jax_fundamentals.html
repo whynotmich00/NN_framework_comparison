@@ -89,12 +89,17 @@
         <a href="jax.html" class="btn btn-back">← Torna a JAX</a>
 
         <div class="content">
-            <p>In questa pagina, esploreremo le tre funzionalità fondamentali di JAX che lo rendono potente per il calcolo scientifico e l'apprendimento automatico.</p>
+            <p>In questa pagina, esploreremo le tre funzionalità fondamentali di JAX che lo rendono potente per il calcolo scientifico e l'apprendimento automatico.
+            Queste funzionalità sono VMAP, JIT e GRAD. VMAP consente di vettorizzare le operazioni, JIT compila le funzioni per migliorare le prestazioni e GRAD calcola i gradienti in modo automatico.
+            La bellezza di programmare in JAX risiede in queste funzioni, che sono state progettate per essere utilizzate insieme, e che garantiscono ad un lettore di codice capire cosa sta succedendo 
+            durante l'allenamento di una rete o durante l'ottimizzazione di un algoritmo. Questa caratteristica è più marcata rispetto ad altri framework, come PyTorch o TensorFlow, che necessitano di un'architettura più complessa per ottenere lo stesso risultato.
+            Si pensi ad esempio al fatto che i parametri, i gradienti, lo stato dell'ottimizzatore in PyTorch sono nascosti in oggetti più complessi.
+            </p>
             
            
 
         <div class="code-section">
-            <h2>Codice per il Benchmark</h2>
+            <h2>Tre Esempi</h2>
             <div class="tabs-container">
                 <div class="tabs">
                     <div class="tab active" data-tab="vmap">vmap</div>
@@ -103,7 +108,8 @@
                 </div>
                 
                 <div id="vmap" class="tab-content active">
-                    <p>In questa sezione, esploreremo le tre funzionalità fondamentali di JAX: VMAP, JIT e GRAD. Queste funzionalità sono essenziali per sfruttare appieno le potenzialità di JAX e ottimizzare le prestazioni dei nostri modelli.</p>
+                    <p>VMAP (Vectorized MAP) permette di vettorizzare operazioni, evitando l'utilizzo di cicli for. I cicli (for, while) e le condizioni (if, elif, else) sono gestibili in modo efficiente su hardware progettato per l'esecuzione sequenziale come le CPU, che possiedono sofisticate architetture per la predizione dei branch e cache gerarchiche. Al contrario, queste strutture non sono ideali quando si ha a che fare con hardware che sfrutta il calcolo parallelo secondo il modello SIMD (Single Instruction, Multiple Data), la cui velocità dipende dalla capacità di eseguire la stessa operazione contemporaneamente su dati diversi in modo indipendente (es: prodotti scalari).
+                        VMAP è particolarmente utile quando si lavora con batch di dati, rendendo semplice e veloce l'applicazione della funzione lungo l'asse che ospita gli input raggruppati nel batch.</p>
                     <pre><code class="language-python">import jax.numpy as jnp
 from jax import grad, vmap, jit
 
@@ -148,6 +154,8 @@ vmap_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
                 
 
                 <div id="jit" class="tab-content">
+                <p>JIT è ciò che rende JAX così veloce, ma questa velocità viene concessa a determinate condizioni. Come detto, questa funzione può compilare solo funzioni pure con input statici, grazie a questa caratteristica il compilatore XLA e tutti i componenti del codice compilato fanno affidamento sul fatto che il tipo e le dimensioni degli input non cambieranno. Questa staticità e prevedibilità derivano dai principi della programmazione funzionale. I costi da pagare sono numerosi, e spesso gli sviluppatori di JAX o di librerie del suo ecosistema si trovano a fare i conti con queste limitazioni, tra cui: la necessità di utilizzare funzioni specifiche per le condizioni (jax.lax.cond) e i cicli (jax.lax.fori_loop), l'utilizzo di parametri specifici di jit che permettono di passare input che non siano array alle funzioni compilate (static_argnames/static_argnums), o ancora i generatori di numeri pseudo-casuali con comportamenti particolari (come documentato nella documentazione ufficiale di JAX).</p>
+
                 <pre><code class="language-python"># JIT compila una funzione pura
 # Non tutto può essere compilato: la regola generale dice di evitare loop e branching 
 # all'interno della funzione, e principalmente avere dizionari o jnp.array come input
@@ -173,6 +181,8 @@ jitted_func = jit(func).lower(x).compile()
                 </div>
 
                 <div id="grad" class="tab-content">
+                <p>Grad è la funzione che permette la differenziazione automatica in JAX, si applica a funzioni che hanno un </p>
+                
                     <pre><code class="language-python">def linear_comb(x: jnp.ndarray, w: jnp.ndarray) -> jnp.ndarray:
     return jnp.sum(x * w) # x0 * w0 + x1 * w1 + ... + xn * wn
 

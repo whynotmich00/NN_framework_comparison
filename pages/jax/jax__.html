@@ -7,151 +7,6 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <style>
-        .tab {
-          padding: 10px 20px;
-          margin-right: 5px;
-          background: #ddd;
-          border-radius: 5px 5px 0 0;
-          cursor: pointer;
-        }
-    
-        .tab.active {
-          background: #fff;
-          font-weight: bold;
-          border-bottom: 2px solid white;
-        }
-    
-        .tab-content {
-          background: #fff;
-          border: 1px solid #ddd;
-          border-radius: 0 5px 5px 5px;
-          padding: 20px;
-          display: none;
-        }
-    
-        .tab-content.active {
-          display: block;
-        }
-    
-        pre {
-          margin: 0;
-          background: #f0f0f0;
-          padding: 10px;
-          border-radius: 5px;
-          overflow-x: auto;
-        }
-        .tabs {
-        display: flex;
-        flex-direction: row; /* Questo assicura che i tab siano in orizzontale */
-        margin-bottom: 0;
-        border-bottom: 1px solid #ddd;
-        }
-    
-        .tab-content {
-        position: relative; /* Necessario per posizionare il pulsante copia */
-        }
-    
-        .copy-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 5px 10px;
-        background: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        z-index: 10; /* Assicura che il pulsante sia sopra il codice */
-        }
-    
-        .copy-button:hover {
-        background: #45a049;
-        }
-        
-        /* Stili per la sezione dell'ecosistema */
-        .library-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
-            justify-content: space-between;
-        }
-        
-        .library-card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: calc(33.333% - 14px);
-            min-width: 280px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .library-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .card-image {
-            height: 160px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-        }
-        
-        .card-image img {
-            max-width: 80%;
-            max-height: 80%;
-            object-fit: contain;
-        }
-        
-        .card-content {
-            padding: 16px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card-content h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #1a73e8;
-            font-size: 1.4em;
-        }
-        
-        .card-content p {
-            margin-bottom: 0;
-            font-size: 0.95em;
-            line-height: 1.5;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 900px) {
-            .library-card {
-                width: calc(50% - 10px);
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .library-cards {
-                flex-direction: column;
-            }
-            
-            .library-card {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -176,10 +31,10 @@
             <h2>Introduzione a JAX (Numpy on steroids)</h2>
             <p><a href="https://github.com/google/jax" target="_blank">JAX</a> è un framework di calcolo numerico sviluppato da Google Research che combina <a href="https://numpy.org/" target="_blank">NumPy</a> con la <a href="https://en.wikipedia.org/wiki/Automatic_differentiation" target="_blank">differenziazione automatica</a> e l'accelerazione hardware. La sua familiarità con la sintassi di NumPy
                 lo rende comprensibile e facile da usare rendendo il percorso di apprendimento più semplice per chi si è già approcciato al calcolo numerico in Python. Quello che gli sviluppatori hanno fatto è stato prendere il
-                codice sorgente aperto di NumPy e scriverne una versione apparentemente identica, ma che permette di essere eseguita su vari acceleratori come <a href="https://en.wikipedia.org/wiki/Graphics_processing_unit" target="_blank">GPU</a> e simili (vedi <code><a href="https://jax.readthedocs.io/en/latest/jax.numpy.html" target="_blank">jax.numpy</a></code>).
-                Anche se spesso ci si trova a lavorare con JAX in modo simile a NumPy, JAX è molto più di una semplice libreria NumPy accelerata. Infatti, JAX offre anche la differenziazione automatica (<code><a href="https://jax.readthedocs.io/en/latest/jax.html#jax.grad" target="_blank">jax.grad</a></code>) e la compilazione just-in-time (<code><a href="https://jax.readthedocs.io/en/latest/jax.html#jax.jit" target="_blank">jax.jit</a></code>) per ottimizzare le prestazioni del codice.
+                codice sorgente aperto di NumPy e scriverne una versione apparentemente identica, ma che permette di essere eseguita su vari acceleratori come <a href="https://en.wikipedia.org/wiki/Graphics_processing_unit" target="_blank">GPU</a> e simili (vedi <a href="https://jax.readthedocs.io/en/latest/jax.numpy.html" target="_blank">jax.numpy</a>).
+                Anche se spesso ci si trova a lavorare con JAX in modo simile a NumPy, JAX è molto più di una semplice libreria NumPy accelerata. Infatti, JAX offre anche la differenziazione automatica (<a href="https://jax.readthedocs.io/en/latest/jax.html#jax.grad" target="_blank">jax.grad</a>) e la compilazione just-in-time (<a href="https://jax.readthedocs.io/en/latest/jax.html#jax.jit" target="_blank">jax.jit</a>) per ottimizzare le prestazioni del codice.
                 Queste funzioni vengono esplorate nel dettaglio nella pagina a loro dedicata "VMAP, GRAD, JIT: Le tre colonne portanti di JAX". Le potenzialità di JAX non si fermano qui, nella sua libreria possiamo trovare numerse altre feature che, per esempio, ci permettono di scrivere
-                kernel per GPU e TPU senza l'utilizzo di <a href="https://developer.nvidia.com/cuda-toolkit" target="_blank">CUDA</a> o <a href="https://www.khronos.org/opencl/" target="_blank">OpenCL</a> (<code><a href="https://jax.readthedocs.io/en/latest/pallas/index.html" target="_blank">jax.pallas</a></code>) o parallelizzare il calcolo su più dispositivi modificando di poco il codice che si scriverebbe normalmente.
+                kernel per GPU e TPU senza l'utilizzo di <a href="https://developer.nvidia.com/cuda-toolkit" target="_blank">CUDA</a> o <a href="https://www.khronos.org/opencl/" target="_blank">OpenCL</a> (<a href="https://jax.readthedocs.io/en/latest/pallas/index.html" target="_blank">jax.pallas</a>) o parallelizzare il calcolo su più dispositivi modificando di poco il codice che si scriverebbe normalmente.
                 Oltre NumPy anche <a href="https://docs.jax.dev/en/latest/jax.scipy.html" target="_blank">SciPy</a> è stata inglobata in JAX, permettendo di utilizzare molte funzioni avanzate di calcolo scientifico e statistico in maniera accelerata.
             </p>
         </div>
@@ -196,28 +51,18 @@
                 <li>Tutti gli array JAX sono immutabili (non modificabili)</li>
             </ul>
             
-            <!-- Implementazione del tab system per il confronto Numpy vs JAX -->
-            <div class="tabs-container">
-                <div class="tabs">
-                    <div class="tab active" data-tab="numpy-imperative">NumPy (imperativo)</div>
-                    <div class="tab" data-tab="jax-functional">JAX (funzionale)</div>
-                </div>
+            <div class="example">
+                <p>In NumPy (imperativo):</p>
+                <pre><code>import numpy as np
+    array = np.zeros(10)
+    array[0] = 1  # Modifica l'array esistente</code></pre>
                 
-                <div id="numpy-imperative" class="tab-content active">
-                    <pre><code class="language-python">import numpy as np
-array = np.zeros(10)
-array[0] = 1  # Modifica l'array esistente</code></pre>
-                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
-                </div>
-                
-                <div id="jax-functional" class="tab-content">
-                    <pre><code class="language-python">import jax.numpy as jnp
-array = jnp.zeros(10)
-# Non è possibile fare array[0] = 1
-# Invece, creiamo un nuovo array:
-array = array.at[0].set(1)</code></pre>
-                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
-                </div>
+                <p>In JAX (funzionale):</p>
+                <pre><code>import jax.numpy as jnp
+    array = jnp.zeros(10)
+    # Non è possibile fare array[0] = 1
+    # Invece, creiamo un nuovo array:
+    array = array.at[0].set(1)</code></pre>
             </div>
             
             <h2>Trasformazioni di funzioni</h2>
@@ -230,17 +75,15 @@ array = array.at[0].set(1)</code></pre>
             </ul>
             
             <p>Queste trasformazioni possono essere composte in modo elegante:</p>
-            <pre><code class="language-python">import jax
-import jax.numpy as jnp
-
-def loss_fn(params, x, y):
-    y_pred = model(params, x)
-    return jnp.mean((y_pred - y)**2)
-
-# Compone trasformazioni in modo semplice
-training_step = jax.jit(jax.grad(loss_fn))</code></pre>
-
-            <button class="copy-button" onclick="copyCode(this)">Copia</button>
+            <pre><code>import jax
+    import jax.numpy as jnp
+    
+    def loss_fn(params, x, y):
+        y_pred = model(params, x)
+        return jnp.mean((y_pred - y)**2)
+    
+    # Compone trasformazioni in modo semplice
+    training_step = jax.jit(jax.grad(loss_fn))</code></pre>
             
             <h2>Composizione e trasparenza referenziale</h2>
             <ul>
@@ -248,61 +91,22 @@ training_step = jax.jit(jax.grad(loss_fn))</code></pre>
                 <li>La trasparenza referenziale garantisce che le funzioni possano essere sostituite con i loro valori</li>
                 <li>Incoraggia uno stile di programmazione più matematico e dichiarativo</li>
             </ul>
-            <div class="tabs-container">
-                <div class="tabs">
-                    <div class="tab active" data-tab="composizione-funzioni">Composizione di Funzioni</div>
-                    <div class="tab" data-tab="trasparenza-referenziale">Trasparenza Referenziale</div>
-                    <div class="tab" data-tab="non-trasparenza-referenziale">Funzione con stato interno</div>
-                </div>
-            <div id="composizione-funzioni" class="tab-content active">
-                <pre><code class="language-python">def double(x):
-    return x * 2
-
-def add_one(x):
-    return x + 1
-
-# Composizione di funzioni
-transform = jax.jit(jax.vmap(lambda x: add_one(double(x))))
-
-# Applicazione a un batch
-batch = jnp.array([1, 2, 3, 4])
-result = transform(batch)  # [3, 5, 7, 9]</code></pre>
-            <button class="copy-button" onclick="copyCode(this)">Copia</button>
-
+            
+            <div class="example">
+                <pre><code>def double(x):
+        return x * 2
+    
+    def add_one(x):
+        return x + 1
+    
+    # Composizione di funzioni
+    transform = jax.jit(jax.vmap(lambda x: add_one(double(x))))
+    
+    # Applicazione a un batch
+    batch = jnp.array([1, 2, 3, 4])
+    result = transform(batch)  # [3, 5, 7, 9]</code></pre>
             </div>
             
-            <div id="trasparenza-referenziale" class="tab-content">
-                <pre><code class="language-python"># Funzione referenzialmente trasparente
-# Funzione referenzialmente trasparente
-def add(a, b):
-    return a + b
-
-x = add(2, 3)  # x = 5
-y = add(2, 3)  # y = 5
-
-# Possiamo sostituire add(2, 3) con 5 ovunque senza cambiare il comportamento
-                    </code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copia</button>
-            </div>
-
-            <div class="tab-content" id="non-trasparenza-referenziale">
-                <pre><code class="language-python">counter = 0
-
-# Funzione NON referenzialmente trasparente
-def increment():
-    global counter
-    counter += 1
-    return counter
-
-a = increment()  # a = 1
-b = increment()  # b = 2
-
-# Non possiamo sostituire increment() con il suo valore perché cambia ogni volta
-                </code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copia</button>
-            </div>
-            </div>
-
             <h2>Approccio "NumPy su steroidi"</h2>
             <ul>
                 <li>API familiare simile a NumPy, ma con accelerazione hardware e differenziazione automatica</li>
@@ -313,53 +117,41 @@ b = increment()  # b = 2
             <ul>
                 <li>I modelli in JAX sono rappresentati come funzioni pure che operano su parametri</li>
                 <li>I parametri sono passati esplicitamente, non incapsulati in oggetti come in PyTorch</li>
-                <li>Favorisce l'architettura "dati dentro, dati fuori" rispetto all'approccio ad oggetti</li>
+                <li>Favorisce l'architettura "dati fuori, dati dentro" rispetto all'approccio ad oggetti</li>
             </ul>
             
-            <!-- Implementazione del tab system per il confronto PyTorch vs JAX -->
-            <div class="tabs-container">
-                <div class="tabs">
-                    <div class="tab active" data-tab="pytorch-oop">PyTorch (orientato agli oggetti)</div>
-                    <div class="tab" data-tab="jax-functional-model">JAX (funzionale)</div>
-                </div>
-                
-                <div id="pytorch-oop" class="tab-content active">
-                    <pre><code class="language-python">import torch
-
-class Model(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.layer = torch.nn.Linear(10, 1)
+            <div class="example">
+                <p>In PyTorch (orientato agli oggetti):</p>
+                <pre><code>import torch
     
-    def forward(self, x):
-        return self.layer(x)
-
-model = Model()
-output = model(input_data)</code></pre>
-                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
-                </div>
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.layer = torch.nn.Linear(10, 1)
+        
+        def forward(self, x):
+            return self.layer(x)
+    
+    model = Model()
+    output = model(input_data)</code></pre>
                 
-                <div id="jax-functional-model" class="tab-content">
-                    <pre><code class="language-python">import jax
-import jax.numpy as jnp
-from jax import random
-
-def init_params(key):
-    key, subkey = random.split(key)
-    W = random.normal(subkey, (10, 1))
-    b = jnp.zeros(1)
-    return {"weights": W, "bias": b}
-
-def model(params, x):
-    return jnp.dot(x, params["weights"]) + params["bias"]
-
-key = random.PRNGKey(42)
-params = init_params(key)
-output = model(params, input_data)</code></pre>
-                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
-                </div>
-            </div>
-        </div>
+                <p>In JAX (funzionale):</p>
+                <pre><code>import jax
+    import jax.numpy as jnp
+    from jax import random
+    
+    def init_params(key):
+        key, subkey = random.split(key)
+        W = random.normal(subkey, (10, 1))
+        b = jnp.zeros(1)
+        return {"weights": W, "bias": b}
+    
+    def model(params, x):
+        return jnp.dot(x, params["weights"]) + params["bias"]
+    
+    key = random.PRNGKey(42)
+    params = init_params(key)
+    output = model(params, input_data)</code></pre>
 
         <div class="content-section">
             <h2>Il Backend di JAX e la sua Architettura</h2>
@@ -389,30 +181,6 @@ output = model(params, input_data)</code></pre>
                 <li>Costruisce un grafo computazionale chiamato "jaxpr" (JAX expression)</li>
                 <li>Questa rappresentazione cattura l'essenza matematica della funzione, indipendentemente dagli aspetti specifici di Python</li>
             </ul>
-
-            <p>Il jaxpr è una rappresentazione del grafo computazionale che mostra le operazioni e le dipendenze tra di esse. In JAX, il jaxpr rappresenta una forma più astratta e funzionale del codice. Questa rappresentazione è simile a un grafo di flusso di dati, dove i nodi rappresentano le operazioni e gli archi rappresentano i dati che fluiscono tra di esse. Il jaxpr è una rappresentazione intermedia che JAX utilizza per ottimizzare e compilare il codice.
-                Si noti che questa forma di rappresentazione è molto diversa da quella che si trova per una normale funzione Python, dove il codice è scritto in modo imperativo e le operazioni sono eseguite in sequenza.</p>
-                Ecco un esempio di jaxpr per una funzione semplice:</p>
-
-            <div class="example-code">
-                <pre><code class="language-python">import jax
-import jax.numpy as jnp
-
-def simple_function(x):
-    return jnp.sum(jnp.square(x))
-# Create input data
-x = jnp.array([1.0, 2.0, 3.0, 4.0])
-# Get the value and jaxpr
-value = simple_function(x)
-jax.make_jaxpr(simple_function)(x)</code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copia</button>
-            </div>
-            <div class="output-block">
-                <pre><code class="language-output">{ lambda ; a:f32[4]. let
-b:f32[4] = integer_pow[y=2] a
-c:f32[] = reduce_sum[axes=(0,)] b
-in (c,) }</code></pre>
-                            </div>
             
             <h4>2. Trasformazione</h4>
             <p>Il jaxpr può essere trasformato in vari modi:</p>
@@ -462,7 +230,7 @@ in (c,) }</code></pre>
             
             
             
-            <p>PIU NEL DETTAGLIO: Immagina di avere una funzione Python che fa dei calcoli matematici usando array NumPy (o meglio, <code><a href="https://jax.readthedocs.io/en/latest/jax.numpy.html" target="_blank">jax.numpy</a></code>). Quando chiedi a JAX di fare qualcosa di "speciale" con questa funzione (come compilarla per la velocità con <code><a href="https://jax.readthedocs.io/en/latest/jax.html#jax.jit" target="_blank">jax.jit</a></code> o calcolarne il gradiente con <code><a href="https://jax.readthedocs.io/en/latest/jax.html#jax.grad" target="_blank">jax.grad</a></code>), JAX non esegue immediatamente la tua funzione Python nel modo tradizionale.
+            <p>PIU NEL DETTAGLIO: Immagina di avere una funzione Python che fa dei calcoli matematici usando array NumPy (o meglio, <a href="https://jax.readthedocs.io/en/latest/jax.numpy.html" target="_blank">jax.numpy</a>). Quando chiedi a JAX di fare qualcosa di "speciale" con questa funzione (come compilarla per la velocità con <a href="https://jax.readthedocs.io/en/latest/jax.html#jax.jit" target="_blank">jax.jit</a> o calcolarne il gradiente con <a href="https://jax.readthedocs.io/en/latest/jax.html#jax.grad" target="_blank">jax.grad</a>), JAX non esegue immediatamente la tua funzione Python nel modo tradizionale.
                 Invece, JAX fa il tracing (tracciamento) della funzione:
                 Esecuzione Simbolica: JAX esegue la tua funzione una volta, ma invece di usare i valori numerici effettivi degli input, usa degli oggetti speciali chiamati tracer. Questi tracer sono come dei segnaposto che registrano le informazioni sulla forma (shape) e sul tipo di dati (dtype) degli array, ma non il loro valore concreto.
                 Registrazione delle Operazioni: Man mano che la funzione viene eseguita con questi tracer, JAX non esegue le operazioni matematiche vere e proprie. Invece, registra la sequenza di operazioni fondamentali di JAX (chiamate primitive) che vengono applicate ai tracer. Ad esempio, se la tua funzione fa y = x + 1, JAX registra un'operazione di "addizione".
@@ -474,8 +242,7 @@ in (c,) }</code></pre>
         <!-- SEZIONE: Ecosystem di JAX -->
         <div class="content-section" id="jax-ecosystem">
             <h2>L'Ecosistema di JAX</h2>
-            
-            <p>JAX è <code>jax.grad(loss_fn)</code> uno strumento potente che fornisce al programmatore numerosi mattoncini con cui poter costruire e sperimentare nuove idee.
+            <p>JAX è uno strumento potente che fornisce al programmatore numerosi mattoncini con cui poter costruire e sperimentare nuove idee.
                 Dover costruire un'ottimizzatore o un layer o una funzione di loss possono presentare numerose peculiarità tecniche non banali (vedi: overflow nella funzione softmax) che possono
                 rallentare di molto gli esperimenti di un ricercatore (non siamo tutti dei programmatori esperti), per questo JAX è considerato un framework
                 più complicato di altri. Per sopperire a questa difficoltà la community ha generato un fiorente ecosistema di librerie che estendono le sue funzionalità di base per applicazioni comuni e/o specifiche.
@@ -520,7 +287,87 @@ in (c,) }</code></pre>
             <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
         </div>
     </footer>
+
+    <style>
+    /* Stili per la sezione dell'ecosistema */
+    .library-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+        justify-content: space-between;
+    }
     
-    <script src="../../js/main.js"></script>
+    .library-card {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: calc(33.333% - 14px);
+        min-width: 280px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .library-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-image {
+        height: 160px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+    
+    .card-image img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+    
+    .card-content {
+        padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-content h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #1a73e8;
+        font-size: 1.4em;
+    }
+    
+    .card-content p {
+        margin-bottom: 0;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 900px) {
+        .library-card {
+            width: calc(50% - 10px);
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .library-cards {
+            flex-direction: column;
+        }
+        
+        .library-card {
+            width: 100%;
+        }
+    }
+    </style>
 </body>
 </html>
