@@ -43,9 +43,9 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 # Definizione di iperparametri
-batch_size = 64
-learning_rate = 0.01
-epochs = 10
+BATCH_SIZE = 64
+LEARNING_RATE = 0.01
+NUM_EPOCHS = 10
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Trasformazioni dei dati
@@ -60,11 +60,11 @@ transform = transforms.Compose([
             <div class="code-block">
 <pre><code class="language-python"># Caricamento del dataset di training
 train_dataset = datasets.MNIST('data', train=True, download=True, transform=transform)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # Caricamento del dataset di test
 test_dataset = datasets.MNIST('data', train=False, transform=transform)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)</code></pre>
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)</code></pre>
 <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
@@ -102,7 +102,7 @@ model = MLP().to(device)
 
 # Definizione di loss function e optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</code></pre>
+optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)</code></pre>
 <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
             
@@ -176,7 +176,7 @@ optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)</code>
             <h3>6. Esecuzione dell'Addestramento</h3>
             <div class="code-block">
 <pre><code class="language-python"># Loop principale di addestramento
-for epoch in range(1, epochs + 1):
+for epoch in range(1, NUM_EPOCHS + 1):
     train(model, device, train_loader, optimizer, epoch)
     test(model, device, test_loader)
 

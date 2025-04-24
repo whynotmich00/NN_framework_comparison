@@ -6,10 +6,72 @@
     <title>VMAP, GRAD, JIT: Le tre colonne portanti di JAX</title>
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <style>
+        .tab {
+          padding: 10px 20px;
+          margin-right: 5px;
+          background: #ddd;
+          border-radius: 5px 5px 0 0;
+          cursor: pointer;
+        }
+    
+        .tab.active {
+          background: #fff;
+          font-weight: bold;
+          border-bottom: 2px solid white;
+        }
+    
+        .tab-content {
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 0 5px 5px 5px;
+          padding: 20px;
+          display: none;
+        }
+    
+        .tab-content.active {
+          display: block;
+        }
+    
+        pre {
+          margin: 0;
+          background: #f0f0f0;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+        .tabs {
+        display: flex;
+        flex-direction: row; /* Questo assicura che i tab siano in orizzontale */
+        margin-bottom: 0;
+        border-bottom: 1px solid #ddd;
+        }
+    
+        .tab-content {
+        position: relative; /* Necessario per posizionare il pulsante copia */
+        }
+    
+        .copy-button {
+        position: absolute;
+        top: 0px;
+        right: 10px;
+        padding: 5px 10px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 10; /* Assicura che il pulsante sia sopra il codice */
+        }
+    
+        .copy-button:hover {
+        background: #45a049;
+        }
+        </style>
 </head>
 <body>
     <header>
@@ -25,7 +87,116 @@
     
     <div class="container">
         <a href="jax.html" class="btn btn-back">← Torna a JAX</a>
+
+        <div class="content">
+            <p>In questa pagina, esploreremo le tre funzionalità fondamentali di JAX che lo rendono potente per il calcolo scientifico e l'apprendimento automatico.</p>
+            
+           
+
+        <div class="code-section">
+            <h2>Codice per il Benchmark</h2>
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="vmap">vmap</div>
+                    <div class="tab" data-tab="jit">jit</div>
+                    <div class="tab" data-tab="grad">grad</div>
+                </div>
+                
+                <div id="vmap" class="tab-content active">
+                    <p>In questa sezione, esploreremo le tre funzionalità fondamentali di JAX: VMAP, JIT e GRAD. Queste funzionalità sono essenziali per sfruttare appieno le potenzialità di JAX e ottimizzare le prestazioni dei nostri modelli.</p>
+                    <pre><code class="language-python">import jax.numpy as jnp
+from jax import grad, vmap, jit
+
+# VMAP serve ad evitare i for loop tramite vettorizzazione di una funzione
+# Difficoltà: capire i parameteri in_axes e out_axes
+
+# Definiamo per esempio la funzione
+def linear(x, w):
+    return jnp.sum(x * w)
+
+x = jnp.ones(shape=(10))
+w = jnp.ones(shape=(10))
+print("Is the linear combination correct?", jnp.allclose(linear(x, w), x @ w)) # test function
+
+# Vectorize the linear combination for the rows of the matrix W 5x10
+# In this way we compute 5 times the linear function with x and the 5 rows of the matrix
+W = jnp.ones(shape=(5, 10))
+
+def loop_linear(x, W):    
+    res = []
+    for row in W:
+        res.append(linear(x, row))
+    return jnp.array(res)
+
+print(f"{loop_linear(x, W)=}")
+
+vmap_linear = vmap(linear, in_axes=(None, 0))
+print(f"{vmap_linear(x, W)=}")
+
+# Confronto prestazioni
+# %timeit -r 5 -n 5 loop_linear(x, W)
+# %timeit -r 5 -n 5 vmap_linear(x, W)</code></pre>
+                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
+                    <div class="output-block">
+                        <pre><code class="language-output">Is the linear combination correct? True
+loop_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
+vmap_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
+1.54 ms ± 202 μs per loop (mean ± std. dev. of 5 runs, 5 loops each)
+697 μs ± 47.2 μs per loop (mean ± std. dev. of 5 runs, 5 loops each)</code></pre>
+                                    </div>
+        </div>
+                
+
+                <div id="jit" class="tab-content">
+                <pre><code class="language-python"># JIT compila una funzione pura
+# Non tutto può essere compilato: la regola generale dice di evitare loop e branching 
+# all'interno della funzione, e principalmente avere dizionari o jnp.array come input
+
+def func(x: jnp.ndarray) -> jnp.ndarray:
+    return x**2
+
+x = jnp.array([1, 2, 3, 4, 5], dtype=jnp.float32)
+y = func(x)
+jitted_func = jit(func).lower(x).compile()
+
+# Confronto prestazioni
+%timeit -r 50 -n 500 func(x)
+%timeit -r 5 -n 500 jitted_func(x).block_until_ready()
+                        </code></pre>
+                        <button class="copy-button" onclick="copyCode(this)">Copia</button>
+                        <div class="output-block">
+                            <pre><code class="language-output">127 μs ± 1.32 μs per loop (mean ± std. dev. of 50 runs, 500 loops each)
+39.8 μs ± 716 ns per loop (mean ± std. dev. of 5 runs, 500 loops each)
+                                </code></pre>
+                                        </div>
+                    </div>
+                </div>
+
+                <div id="grad" class="tab-content">
+                    <pre><code class="language-python">def linear_comb(x: jnp.ndarray, w: jnp.ndarray) -> jnp.ndarray:
+    return jnp.sum(x * w) # x0 * w0 + x1 * w1 + ... + xn * wn
+
+grad_func_wrt_first_arg = grad(linear_comb, argnums=0)
+grad_func_wrt_second_arg = grad(linear_comb, argnums=1)
+
+x = jnp.arange(1, 10, dtype=jnp.float32)
+w = jnp.arange(11, 20, dtype=jnp.float32)
+
+print(f"The gradient respect to the first argument of the linear combination should correspond to w {grad_func_wrt_first_arg(x, w)}")
+print(f"The gradient respect to the first argument of the linear combination should correspond to x {grad_func_wrt_second_arg(x, w)}")
+            </code></pre>
+            <button class="copy-button" onclick="copyCode(this)">Copia</button>
+            
+            
+            <div class="output-block">
+                <pre><code class="language-output">The gradient in respect to the first argument of the linear combination should correspond to w [11. 12. 13. 14. 15. 16. 17. 18. 19.]
+The gradient in respect to the first argument of the linear combination should correspond to x [1. 2. 3. 4. 5. 6. 7. 8. 9.]
+                    </code></pre>
+                            </div>
+            </div>
+        </div>
         
+        <a href="jax.html" class="btn btn-back">← Torna a JAX</a>
     </div>
 
     <footer>
@@ -33,5 +204,7 @@
             <p>© 2025 - Guida alle Librerie per Reti Neurali</p>
         </div>
     </footer>
+    
+    <script src="../../js/main.js"></script>
 </body>
 </html>

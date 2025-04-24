@@ -103,6 +103,7 @@
                 </div>
                 
                 <div id="vmap" class="tab-content active">
+                    <p>In questa sezione, esploreremo le tre funzionalità fondamentali di JAX: VMAP, JIT e GRAD. Queste funzionalità sono essenziali per sfruttare appieno le potenzialità di JAX e ottimizzare le prestazioni dei nostri modelli.</p>
                     <pre><code class="language-python">import jax.numpy as jnp
 from jax import grad, vmap, jit
 
@@ -136,7 +137,14 @@ print(f"{vmap_linear(x, W)=}")
 # %timeit -r 5 -n 5 loop_linear(x, W)
 # %timeit -r 5 -n 5 vmap_linear(x, W)</code></pre>
                     <button class="copy-button" onclick="copyCode(this)">Copia</button>
-                </div>
+                    <div class="output-block">
+                        <pre><code class="language-output">Is the linear combination correct? True
+loop_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
+vmap_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
+1.54 ms ± 202 μs per loop (mean ± std. dev. of 5 runs, 5 loops each)
+697 μs ± 47.2 μs per loop (mean ± std. dev. of 5 runs, 5 loops each)</code></pre>
+                                    </div>
+        </div>
                 
 
                 <div id="jit" class="tab-content">
@@ -152,10 +160,15 @@ y = func(x)
 jitted_func = jit(func).lower(x).compile()
 
 # Confronto prestazioni
-# %timeit -r 5 -n 5 func(x)
-# %timeit -r 5 -n 5 jitted_func(x)
+%timeit -r 50 -n 500 func(x)
+%timeit -r 5 -n 500 jitted_func(x).block_until_ready()
                         </code></pre>
                         <button class="copy-button" onclick="copyCode(this)">Copia</button>
+                        <div class="output-block">
+                            <pre><code class="language-output">127 μs ± 1.32 μs per loop (mean ± std. dev. of 50 runs, 500 loops each)
+39.8 μs ± 716 ns per loop (mean ± std. dev. of 5 runs, 500 loops each)
+                                </code></pre>
+                                        </div>
                     </div>
                 </div>
 
@@ -173,6 +186,13 @@ print(f"The gradient respect to the first argument of the linear combination sho
 print(f"The gradient respect to the first argument of the linear combination should correspond to x {grad_func_wrt_second_arg(x, w)}")
             </code></pre>
             <button class="copy-button" onclick="copyCode(this)">Copia</button>
+            
+            
+            <div class="output-block">
+                <pre><code class="language-output">The gradient in respect to the first argument of the linear combination should correspond to w [11. 12. 13. 14. 15. 16. 17. 18. 19.]
+The gradient in respect to the first argument of the linear combination should correspond to x [1. 2. 3. 4. 5. 6. 7. 8. 9.]
+                    </code></pre>
+                            </div>
             </div>
         </div>
         
