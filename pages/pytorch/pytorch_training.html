@@ -101,7 +101,7 @@ test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)</co
 model = MLP().to(device)
 
 # Definizione di loss function e optimizer
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)</code></pre>
 <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>

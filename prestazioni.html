@@ -87,6 +87,27 @@
         <a href="index.html" class="back-link">← Torna alla Home</a>
         
         <div class="performance-section">
+            <p>Eseguire dei test benchmark che permettano di comparare in maniera oggettiva due diversi framework è un lavoro
+                che richiede accortezza e conoscenza di quali sono i meccanismi interni a livello software ed hardware di tali framework, per esempio
+                può verificarsi che le utilities di basso livello di JAX e PyTorch possano andare in conflitto e che i compilatori di basso livello
+                cambino una delle tantissime variabili di sistema della macchina ciò permetterebbe ad uno dei due di privaleggiare nel risultato benchmark in maniera
+                non veritiera. Eseguire dei test a parità di condizioni è difficile ma non impossibile, nel nostro caso per sopperire a tale possibili conflittualità
+                abbiamo eseguito tutti i test sulla velocità e sulla memoria in due distinte modalità. Nella prima modalità abbiamo creato un ambiente virtuale conda 
+                comune per i tre framework, ciò vuol dire che tutti i pacchetti utilizzati sono stati installati in un solo environment utilizzato per eseguire lo script di
+                benchmark. Nel secondo caso per essere sicuri che nessuna libreria sovraperformava o sottoperformava per motivi non riconducibili alla sua mera efficienza,
+                abbiamo rieseguito il codice separando i test per ogni relativo framework con degli ambienti propri e isolati. I risultati sono i medesimi.
+            </p>
+            <p>Come si leggono i test? Abbiamo valutato le performance attinenti la velocità di allenamento e di inferenza utilizzando Keras, PyTorch e JAX, successivamente con l'utilizzo
+                di un altro script abbiamo misurato l'utilizzo di memoria GPU e RAM/CPU sempre durante queste fasi. I risultati sono stati mediati per non essere influenzati da picchi di utilizzo.
+                Per le prestazioni di velocità di un framework abbiamo poca possibilità di interpretazione, più è basso il tempo di allenamento e inferenza e più il framework è performante. 
+                Capire l'utilizzo di memoria invece può essere più complicato. In linea di massima vogliamo che la nostra libreria utilizzi il più possibile la nostra GPU e meno la RAM o le cache
+                della CPU. Questo genere di ottimizzazioni sono scelte del compilatore. Per esempio, soprattutto per la compilazione iniziale JIT, JAX ha bisogno di più memoria rispetto a PyTorch e Keras,
+                ma questo è un prezzo necessario da pagare per acquisire più velocità successivamente. Per ricavare dei risultati sensati dai test sulla memoria
+                bisogna tenere traccia non solo del picco di memoria utilizzato ma dell'utilizzo graduale durante tutto il training.
+            </p>
+
+            <p>Per garantire uniformità nei test abbiamo utilizzato un'architettura CNN identica per i tre framework, il dataset CIFAR-10 e un batch size di 128. I test sono stati eseguiti su 10 epoche.</p>
+                
             <h2>Tabella Riassuntiva delle Prestazioni</h2>
             <table>
                 <thead>
@@ -119,14 +140,14 @@
                     <tr>
                         <td>Tempo compilazione</td>
                         <td>Rapido</td>
-                        <td>Immediato</td>
+                        <td>Rapido</td>
                         <td>Lento (JIT)</td>
                     </tr>
                     <tr>
                         <td>Scalabilità</td>
-                        <td>Buona</td>
-                        <td>Molto buona</td>
-                        <td>Eccellente</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
                     </tr>
                 </tbody>
             </table>
@@ -684,24 +705,27 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
             <img src="images/inference_time_comparison.png" alt="Confronto tempi di inferenza" width="800">
             <p class="image-caption">Confronto dei tempi di inferenza tra i framework (millisecondi per immagine, minore è meglio)</p>
             
-            <img src="images/mem_usage_comparison.png" alt="Confronto utilizzo memoria" width="800">
-            <p class="image-caption">Confronto dell'utilizzo di memoria GPU tra i framework (GB, minore è meglio)</p>
+            <img src="images/mem_usage_comparison_avg.png" alt="Confronto utilizzo memoria average" width="800">
+            <p class="image-caption">Confronto del picco di utilizzo di memoria tra i framework (MB, minore è meglio)</p>
+
+            <img src="images/mem_usage_comparison_peak.png" alt="Confronto utilizzo memoria peak" width="800">
+            <p class="image-caption">Confronto dell'utilizzo di memoria in media tra i framework (MB, minore è meglio)</p>
         </div>
         
         <div class="analysis-section">
             <h2>Analisi delle Prestazioni</h2>
             
             <h3>Velocità di Training</h3>
-            <p>JAX mostra prestazioni di training significativamente superiori rispetto agli altri framework, con un tempo di allenamento inferiore del 24% rispetto a PyTorch e del 42% rispetto a Keras. Questo è attribuibile principalmente all'ottimizzazione XLA integrata in JAX e alla sua architettura funzionale che permette una migliore parallelizzazione.</p>
+            <p>JAX mostra prestazioni di training significativamente superiori rispetto agli altri framework, con un tempo di allenamento inferiore del 35% rispetto a PyTorch e del 46% rispetto a Keras. Questo è attribuibile principalmente all'ottimizzazione XLA integrata in JAX e alla sua architettura funzionale che permette una migliore parallelizzazione.</p>
             
             <h3>Velocità di Inferenza</h3>
-            <p>Anche nell'inferenza JAX si distingue, risultando il 26% più veloce di PyTorch e il 50% più veloce di Keras. Questo vantaggio è particolarmente importante in scenari di produzione dove la latenza è critica.</p>
+            <p>Anche nell'inferenza JAX si distingue, risultando il triplo più veloce di PyTorch e 6 volte più veloce di Keras. Questo vantaggio è particolarmente importante in scenari di produzione dove la latenza è critica.</p>
             
-            <h3>Efficienza di Memoria</h3>
+            <h3>Efficienza di Memoria (GPU)</h3>
             <p>JAX risulta essere il più efficiente in termini di memoria, utilizzando circa il 19% in meno di memoria rispetto a PyTorch e il 39% in meno rispetto a Keras. Questa efficienza permette di addestrare modelli più grandi con la stessa quantità di memoria disponibile.</p>
             
-            <h3>Tempo di Inizializzazione</h3>
-            <p>PyTorch eccelle nella velocità di inizializzazione, mentre JAX richiede più tempo per la compilazione JIT iniziale. Tuttavia, questo svantaggio viene rapidamente compensato durante l'esecuzione di training e inferenza.</p>
+            <h3>Efficienza di Memoria (RAM)</h3>
+            <p>JAX risulta essere il più efficiente in termini di memoria, utilizzando circa il 19% in meno di memoria rispetto a PyTorch e il 39% in meno rispetto a Keras. Questa efficienza permette di addestrare modelli più grandi con la stessa quantità di memoria disponibile.</p>
             
             <h3>Accuratezza</h3>
             <p>Tutti i framework raggiungono un'accuratezza simile, dimostrando che le differenze di prestazioni non compromettono la qualità del modello addestrato.</p>

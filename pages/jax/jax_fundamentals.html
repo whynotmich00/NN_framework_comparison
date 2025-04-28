@@ -110,7 +110,7 @@
                 <div id="vmap" class="tab-content active">
                     <p>VMAP (Vectorized MAP) permette di vettorizzare operazioni, evitando l'utilizzo di cicli for. I cicli (for, while) e le condizioni (if, elif, else) sono gestibili in modo efficiente su hardware progettato per l'esecuzione sequenziale come le CPU, che possiedono sofisticate architetture per la predizione dei branch e cache gerarchiche. Al contrario, queste strutture non sono ideali quando si ha a che fare con hardware che sfrutta il calcolo parallelo secondo il modello SIMD (Single Instruction, Multiple Data), la cui velocità dipende dalla capacità di eseguire la stessa operazione contemporaneamente su dati diversi in modo indipendente (es: prodotti scalari).
                         VMAP è particolarmente utile quando si lavora con batch di dati, rendendo semplice e veloce l'applicazione della funzione lungo l'asse che ospita gli input raggruppati nel batch.</p>
-                    <pre><code class="language-python">import jax.numpy as jnp
+                    <div><pre><code class="language-python">import jax.numpy as jnp
 from jax import grad, vmap, jit
 
 # VMAP serve ad evitare i for loop tramite vettorizzazione di una funzione
@@ -140,9 +140,9 @@ vmap_linear = vmap(linear, in_axes=(None, 0))
 print(f"{vmap_linear(x, W)=}")
 
 # Confronto prestazioni
-# %timeit -r 5 -n 5 loop_linear(x, W)
-# %timeit -r 5 -n 5 vmap_linear(x, W)</code></pre>
-                    <button class="copy-button" onclick="copyCode(this)">Copia</button>
+%timeit -r 5 -n 5 loop_linear(x, W)
+%timeit -r 5 -n 5 vmap_linear(x, W)</code></pre>
+                    <button class="copy-button" onclick="copyCode(this)">Copia</button></div>
                     <div class="output-block">
                         <pre><code class="language-output">Is the linear combination correct? True
 loop_linear(x, W)=Array([10., 10., 10., 10., 10.], dtype=float32)
