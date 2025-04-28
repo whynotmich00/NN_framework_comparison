@@ -196,44 +196,36 @@ y_test = keras.utils.to_categorical(y_test, 10)
 # Crea il modello CNN
 model = keras.Sequential([
     keras.layers.Conv2D(32, (3, 3), padding='same', input_shape=(32, 32, 3)),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.Conv2D(32, (3, 3), padding='same'),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.MaxPooling2D((2, 2)),
-    keras.layers.Dropout(0.2),
     
     keras.layers.Conv2D(64, (3, 3), padding='same'),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.Conv2D(64, (3, 3), padding='same'),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.MaxPooling2D((2, 2)),
-    keras.layers.Dropout(0.3),
     
     keras.layers.Conv2D(128, (3, 3), padding='same'),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.Conv2D(128, (3, 3), padding='same'),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
     keras.layers.MaxPooling2D((2, 2)),
-    keras.layers.Dropout(0.4),
     
     keras.layers.Flatten(),
     keras.layers.Dense(128),
-    keras.layers.BatchNormalization(),
     keras.layers.Activation('relu'),
-    keras.layers.Dropout(0.5),
     keras.layers.Dense(10, activation='softmax')
 ])
 
 # Compila il modello
 model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
+
+# print numero di parameteri
+print(f"Numero totale di parametri: {model.count_params():,}")
 
 # Inizia il timer per il training
 start_time = time.time()
@@ -261,10 +253,12 @@ predictions = model.predict(x_test)
 inference_time = time.time() - start_time
 print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
 print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
+print(len(x_test))
 
 # Valuta il modello
 test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
 print(f"Accuratezza sul test set: {test_acc:.4f}")
+                    
                     </code></pre>
                     <button class="copy-button" onclick="copyCode(this)">Copia</button>
                 </div>
@@ -306,46 +300,35 @@ class CNN(nn.Module):
         # Blocco 1
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.2)
         )
         
         # Blocco 2
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.3)
         )
         
         # Blocco 3
         self.conv3 = nn.Sequential(
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.4)
         )
         
         # Fully connected
         self.fc = nn.Sequential(
             nn.Flatten(),
             nn.Linear(128 * 4 * 4, 128),
-            nn.BatchNorm1d(128),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Linear(128, 10)
         )
     
@@ -386,7 +369,6 @@ def train_model(model, trainloader, criterion, optimizer, epochs=10):
             if i % 100 == 99:
                 print(f'[Epoch {epoch + 1}, Batch {i + 1}] loss: {running_loss / 100:.3f}')
                 running_loss = 0.0
-        print(torch.cuda.memory_summary(device=0))
         
     training_time = time.time() - start_time
     print(f"Tempo totale di training: {training_time:.2f} secondi")
@@ -410,6 +392,7 @@ def test_model(model, testloader):
     inference_time = time.time() - start_time
     print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
     print(f"Tempo medio per immagine: {inference_time / total * 1000:.2f} ms")
+    print(total)
     print(f'Accuratezza sul test set: {100 * correct / total:.2f}%')
     
     return inference_time, correct / total
@@ -423,6 +406,7 @@ training_time = train_model(model, trainloader, criterion, optimizer, epochs=10)
 
 # Esegui l'inferenza
 inference_time, accuracy = test_model(model, testloader)
+            
             </code></pre>
             <button class="copy-button" onclick="copyCode(this)">Copia</button>
             </div>
@@ -433,76 +417,64 @@ import jax.numpy as jnp
 import jax.random as jrn
 import jax.tree_util as jtu
 from flax import linen as nn
-from flax.training import train_state
+from flax.training.train_state import TrainState
 import optax
 from tensorflow.keras.datasets import cifar10
 import numpy as np
 import time
+from pprint import pprint
 
-import psutil
-import os
-
-def get_memory_usage():
-    """Ritorna l'utilizzo di memoria in MB."""
-    process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss / 1024 / 1024  # Converti in MB
-
-
-class TrainState(train_state.TrainState):
-    batch_stats: dict
-    key: jrn.PRNGKey
+from tensorflow.data import Dataset, AUTOTUNE
 
 # Imposta il seed per la riproducibilità
 rng = jax.random.PRNGKey(0)
 
-# Carica il dataset
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
-x_train = x_train.astype(np.float32) / 255.0
-x_test = x_test.astype(np.float32) / 255.0
-y_train = y_train.reshape(-1)
-y_test = y_test.reshape(-1)
+def get_cifar10_dataloaders(batch_size):  # Nome funzione corretto
+    # Load the CIFAR-10 dataset
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    
+    # Normalize the images to [0, 1] - decommentato
+    x_train = x_train.astype("float32") / 255.0
+    x_test = x_test.astype("float32") / 255.0
+    
+    # Reshape le etichette da (n,1) a (n,)
+    y_train = y_train.reshape(-1)
+    y_test = y_test.reshape(-1)
+
+    train_dataset = Dataset.from_tensor_slices((x_train, y_train)).shuffle(buffer_size=1024).batch(batch_size=batch_size).prefetch(AUTOTUNE)
+    test_dataset = Dataset.from_tensor_slices((x_test, y_test)).shuffle(buffer_size=1024).batch(batch_size=batch_size).prefetch(AUTOTUNE)
+    
+    return train_dataset, test_dataset
 
 # Definisci il modello CNN con Flax
 class CNN(nn.Module):
     @nn.compact
-    def __call__(self, x, training=True):
+    def __call__(self, x): 
         # Blocco 1
         x = nn.Conv(features=32, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.Conv(features=32, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.max_pool(x, window_shape=(2, 2), strides=(2, 2))
-        x = nn.Dropout(rate=0.2, deterministic=not training)(x)
         
         # Blocco 2
         x = nn.Conv(features=64, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.Conv(features=64, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.max_pool(x, window_shape=(2, 2), strides=(2, 2))
-        x = nn.Dropout(rate=0.3, deterministic=not training)(x)
         
         # Blocco 3
         x = nn.Conv(features=128, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.Conv(features=128, kernel_size=(3, 3), padding="SAME")(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
         x = nn.max_pool(x, window_shape=(2, 2), strides=(2, 2))
-        x = nn.Dropout(rate=0.4, deterministic=not training)(x)
         
         # Fully connected
         x = x.reshape((x.shape[0], -1))  # flatten
         x = nn.Dense(features=128)(x)
-        x = nn.BatchNorm(use_running_average=not training)(x)
         x = nn.relu(x)
-        x = nn.Dropout(rate=0.5, deterministic=not training)(x)
         x = nn.Dense(features=10)(x)
         
         return x
@@ -517,78 +489,52 @@ def cross_entropy_loss(logits, labels):
 def compute_accuracy(logits, labels):
     return jnp.mean(jnp.argmax(logits, -1) == labels)
 
-def create_train_state(rng, learning_rate=0.001):
-    model = CNN()
+def create_train_state(rng, learning_rate=0.001):  # Learning rate aumentato per convergenza più veloce
+    cnn = CNN()
+    
+    # Input shape corretto per CIFAR-10
     input_shape = (1, 32, 32, 3)
-    rng_p, rng_dp = jrn.split(rng)
-    variables = model.init({"params": rng_p, "dropout": rng_dp}, jnp.ones(input_shape), training=True)
+    params = cnn.init({"params": rng}, jnp.ones(input_shape))
     tx = optax.adam(learning_rate)
     
-    leaves_size = jtu.tree_map(jnp.size, variables["params"])
+    leaves_size = jtu.tree_map(jnp.size, params)
     print(f"There are {jtu.tree_reduce(lambda x, carry: x + carry, leaves_size)} parameters")
     
     return TrainState.create(
-        apply_fn=model.apply,
-        params=variables["params"],
-        batch_stats=variables["batch_stats"],
-        key=rng_dp,
-        tx=tx
+        apply_fn=cnn.apply,
+        params=params,
+        tx=tx,
     )
 
 
 @jax.jit
 def train_step(state, batch_images, batch_labels):
-    dropout_rng, new_key = jax.random.split(state.key)
-    
     def loss_fn(params):
-        logits, updated_batch_stats = state.apply_fn(
-            {"params": params, "batch_stats": state.batch_stats},
-            batch_images, 
-            training=True,
-            mutable=["batch_stats"],
-            rngs={"dropout": dropout_rng}
-        )
+        logits = state.apply_fn(params, x=batch_images)  # Corretto l'input
         loss = cross_entropy_loss(logits, batch_labels)
-        return loss, (logits, updated_batch_stats)
+        return loss, logits
 
     grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
-    (loss, (logits, updated_batch_stats)), grads = grad_fn(state.params)
+    (loss, logits), grads = grad_fn(state.params)
     accuracy = compute_accuracy(logits, batch_labels)
     
-    # Aggiorna lo stato con i nuovi parametri, batch_stats e key
-    new_state = state.apply_gradients(grads=grads)
-    new_state = new_state.replace(
-        batch_stats=updated_batch_stats["batch_stats"],
-        key=new_key
-    )
-    
+    # Aggiorna lo stato con i nuovi parametri
+    new_state = state.apply_gradients(grads=grads)    
     return new_state, loss, accuracy
 
 @jax.jit
 def eval_step(state, batch_images, batch_labels):
-    logits = state.apply_fn(
-        {"params": state.params, "batch_stats": state.batch_stats},
-        batch_images, 
-        training=False,
-        mutable=False
-    )
+    logits = state.apply_fn(state.params, x=batch_images)
     return compute_accuracy(logits, batch_labels)
 
-# Funzione batch
-def get_batch(x, y, batch_size, rng):
-    dataset_size = x.shape[0]
-    indices = jax.random.permutation(rng, jnp.arange(dataset_size))
-    for i in range(0, dataset_size, batch_size):
-        batch_indices = indices[i:i + batch_size]
-        yield x[batch_indices], y[batch_indices]
-
 # Esegui il training
-def train_epoch(state, x_train, y_train, batch_size, rng):
+def train_epoch(state, train_dl):
     batch_losses = []
     batch_accuracies = []
     
-    batches = get_batch(x_train, y_train, batch_size, rng)
-    for batch_images, batch_labels in batches:
+    for batch_images, batch_labels in train_dl:
+        batch_images = jnp.array(batch_images, dtype=jnp.float32)
+        batch_labels = jnp.array(batch_labels, dtype=jnp.int32)
         state, loss, accuracy = train_step(state, batch_images, batch_labels)
         batch_losses.append(loss)
         batch_accuracies.append(accuracy)
@@ -604,36 +550,34 @@ train_losses = []
 train_accuracies = []
 
 state = create_train_state(rng)
+train_dl, test_dl = get_cifar10_dataloaders(batch_size)  # Nome funzione corretto
 
 for epoch in range(epochs):
-    rng, step_rng = jax.random.split(rng)
-    print(f"Memoria utilizzata: {get_memory_usage():.2f} MB")
-    state, train_loss, train_accuracy = train_epoch(state, x_train, y_train, batch_size, step_rng)
+    state, train_loss, train_accuracy = train_epoch(state, train_dl)
     
     train_losses.append(train_loss)
     train_accuracies.append(train_accuracy)
     
     print(f"Epoch {epoch + 1}, Loss: {train_loss:.4f}, Accuracy: {train_accuracy:.4f}")
-    print(f"Memoria dopo l'epoca {epoch+1}: {get_memory_usage():.2f} MB")
 
 training_time = time.time() - start_time
 print(f"Tempo totale di training: {training_time:.2f} secondi")
 
 # Inferenza
 start_time = time.time()
-batches = jnp.array_split(x_test, 10)  # Split in lotti più piccoli per l'inferenza
-test_labels = jnp.array_split(y_test, 10)
 accuracies = []
 
-for batch_images, batch_labels in zip(batches, test_labels):
+for batch_images, batch_labels in test_dl:
+    batch_images = jnp.array(batch_images, dtype=jnp.float32)
+    batch_labels = jnp.array(batch_labels, dtype=jnp.int32)
     accuracy = eval_step(state, batch_images, batch_labels)
     accuracies.append(accuracy)
 
-test_accuracy = jnp.mean(jnp.array(accuracies))
 inference_time = time.time() - start_time
+test_accuracy = jnp.mean(jnp.array(accuracies))
 
 print(f"Tempo totale di inferenza: {inference_time:.2f} secondi")
-print(f"Tempo medio per immagine: {inference_time / len(x_test) * 1000:.2f} ms")
+print(f"Tempo medio per immagine: {inference_time / (len(test_dl) * batch_size) * 1000:.2f} ms")
 print(f"Accuratezza sul test set: {test_accuracy:.4f}")
                     </code></pre>
                     <button class="copy-button" onclick="copyCode(this)">Copia</button>
@@ -658,26 +602,26 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
                     <tr>
                         <td>Tempo di training (10 epoche)</td>
                         <td>69.92 s</td>
-                        <td>57.65 s</td>
-                        <td>37.10 s</td>
+                        <td>51.38 s</td>
+                        <td>23.74 s</td>
                     </tr>
                     <tr>
                         <td>Tempo di inferenza (10.000 immagini)</td>
-                        <td>3.19 s</td>
-                        <td>1.46 s</td>
-                        <td>0.46 s</td>
+                        <td>2.61 s</td>
+                        <td>1.14 s</td>
+                        <td>1.36 s</td>
                     </tr>
                     <tr>
                         <td>Tempo medio inferenza per immagine</td>
-                        <td>0.32 ms</td>
-                        <td>0.15 ms</td>
-                        <td>0.05 ms</td>
+                        <td>0.26 ms</td>
+                        <td>0.11 ms</td>
+                        <td>0.13 ms</td>
                     </tr>
                     <tr>
                         <td>Accuratezza sul test set</td>
-                        <td>78.88%</td>
-                        <td>82.45%</td>
-                        <td>81.22%</td>
+                        <td>75.33%</td>
+                        <td>77.80%</td>
+                        <td>76.18%</td>
                     </tr>
                     <tr>
                         <td>Utilizzo memoria picco (GPU) *</td>
@@ -719,7 +663,9 @@ print(f"Accuratezza sul test set: {test_accuracy:.4f}")
             <p>JAX mostra prestazioni di training significativamente superiori rispetto agli altri framework, con un tempo di allenamento inferiore del 35% rispetto a PyTorch e del 46% rispetto a Keras. Questo è attribuibile principalmente all'ottimizzazione XLA integrata in JAX e alla sua architettura funzionale che permette una migliore parallelizzazione.</p>
             
             <h3>Velocità di Inferenza</h3>
-            <p>Anche nell'inferenza JAX si distingue, risultando il triplo più veloce di PyTorch e 6 volte più veloce di Keras. Questo vantaggio è particolarmente importante in scenari di produzione dove la latenza è critica.</p>
+            <p>Nell'inferenza notiamo un rallentamento nelle prestazioni di JAX, questo potrebbe essere dovuto al fatto che il vantaggio ottenuto in 
+                termini di velocità di esecuzione della funzione compilata non compensa il tempo speso in più per compilarla. Effetto che probabilmente
+                si noterebbe se il test set fosse più grande.</p>
             
             <h3>Efficienza di Memoria (GPU)</h3>
             <p>JAX risulta essere il più efficiente in termini di memoria, utilizzando circa il 19% in meno di memoria rispetto a PyTorch e il 39% in meno rispetto a Keras. Questa efficienza permette di addestrare modelli più grandi con la stessa quantità di memoria disponibile.</p>
